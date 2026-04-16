@@ -1627,6 +1627,25 @@ h1 {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.about-sections {
+    grid-template-columns: 1fr;
+}
+
+.about-section-card {
+    display: grid;
+    grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+}
+
+.about-section-card h2 {
+    margin-bottom: 0;
+}
+
+.about-section-card p {
+    margin: 0;
+}
+
 .two-column-callout {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2254,6 +2273,11 @@ mark {
     .character-grid,
     .content-grid {
         grid-template-columns: 1fr;
+    }
+
+    .about-section-card {
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
     }
 
     .section-header-inline,

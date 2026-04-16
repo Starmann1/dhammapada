@@ -633,9 +633,9 @@ function renderAboutPage() {
   getPageContent().innerHTML = `
     <section class="page-shell">
       ${renderStaticPageHero('About The Dhammapada', about.intro, 'About This Edition')}
-      <section class="content-grid">
+      <section class="content-grid about-sections">
         ${about.sections.map((section) => `
-          <article class="surface-card prose-card">
+          <article class="surface-card prose-card about-section-card">
             <h2>${escapeHtml(section.title)}</h2>
             <p>${escapeHtml(section.body)}</p>
           </article>
