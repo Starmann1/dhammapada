@@ -45563,27 +45563,27 @@
   },
   "about": {
     "title": "About The Dhammapada",
-    "intro": "A focused reading and study companion for one of the best-known collections of the Buddha’s teachings.",
+    "intro": "This edition of The Dhammapada is designed as a calm, reliable study companion for readers who want to return to the Buddha's teachings with care, clarity, and continuity. Instead of presenting isolated quotations, the site brings verses, themes, context, and commentary into one place so the text can be read slowly, compared thoughtfully, and revisited over time.",
     "sections": [
       {
         "id": "book",
         "title": "What This Book Is",
-        "body": "The Dhammapada is a compact collection of verses that distills major Buddhist themes into short, memorable teachings. Its chapters move through mind, discipline, effort, wisdom, and liberation with unusual clarity and precision."
+        "body": "The Dhammapada is a compact but profound collection of 423 verses organized across 26 chapters, drawn from the Khuddaka Nikāya of the Pali Canon. Traditionally attributed to the Buddha himself, it distills the core of Buddhist practice into short, poetic teachings on mind, conduct, wisdom, and liberation. Each verse carries centuries of commentary, narrative context, and lived application — making it one of the most studied and memorized texts in the Theravāda tradition. Its language is compact, memorable, and often deceptively simple. In a few lines it can move from everyday conduct to the training of the mind, from restraint and effort to wisdom and liberation. For many readers, it serves both as an introduction to Buddhist ethics and as a lifelong text for reflection, recitation, and repeated study."
       },
       {
         "id": "site-purpose",
         "title": "Why This Site Exists",
-        "body": "This project is designed as an approachable study surface: chapter browsing, verse reading, commentary, narrative context, and discovery tools that help readers return to the text regularly."
+        "body": "This project began as a personal study tool and has grown into a full reading and discovery platform. Many people first encounter the Dhammapada through isolated quotations shared without context. That makes the text appear decorative when it is actually disciplined, structured, and deeply practical. This site exists to restore that context. It gathers chapters, verses, transliteration, commentary, themes, and discovery tools into a single reading experience so students, practitioners, and curious readers can study the work as a connected whole rather than as disconnected sayings."
       },
       {
         "id": "study-approach",
         "title": "How To Use It",
-        "body": "A good rhythm is simple: read the verse aloud, compare the translation and transliteration, review a few key terms, then use the commentary and related verses to deepen understanding."
+        "body": "The best way to use this site is slowly. Read one verse or one short cluster of verses at a time. Read them aloud. Notice repeated ideas such as mind, heedfulness, craving, restraint, and the wise person. Compare the translation with the transliteration, then use the commentary to understand the doctrinal background, literary setting, and practical meaning. Return to related verses across chapters, because the same teaching often appears from a different angle elsewhere. This site is built for repeated visits, not one fast pass."
       },
       {
         "id": "future",
         "title": "What Comes Next",
-        "body": "The long-term roadmap adds richer study notes, more audio support, a Python API backed by MongoDB, and carefully cited retrieval-based AI features built only on approved site content."
+        "body": "The next stage of this project is to grow from a reading companion into a carefully cited Buddhist study platform. Planned additions include richer study notes, guided theme trails, better search, audio recitation, a Python API backed by MongoDB, and a retrieval-augmented AI Dharma Companion built only on approved texts and commentary."
       }
     ]
   },
