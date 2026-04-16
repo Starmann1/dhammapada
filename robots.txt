@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://starmann1.github.io/dhammapada-static/sitemap.xml
