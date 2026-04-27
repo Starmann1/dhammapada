@@ -6,18 +6,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .models import (
     AboutContent,
+    ChatRequest,
+    ChatResponse,
     ChapterDetail,
     ChapterSummary,
     CharacterItem,
     FaqItem,
     HealthResponse,
     QuoteItem,
+    RagStatus,
     SearchResult,
     SiteInfo,
     ThemeDefinition,
     Verse,
     VerseOfDayResponse,
 )
+from .rag import StructuredHybridRag
 from .repository import get_repository
 
 app = FastAPI(title="Dhammapada API", version="0.1.0")
@@ -29,6 +33,7 @@ app.add_middleware(
 )
 
 repository = get_repository()
+rag = StructuredHybridRag(repository)
 
 
 @app.get("/api/health", response_model=HealthResponse)
@@ -79,6 +84,48 @@ def verse(chapter_id: int, verse_number: int) -> Verse:
 @app.get("/api/search", response_model=list[SearchResult])
 def search(q: str = Query(..., min_length=1), limit: int = Query(20, ge=1, le=50)) -> list[SearchResult]:
     return [SearchResult.model_validate(item) for item in repository.search(q, limit)]
+
+
+@app.get("/api/rag/search", response_model=list[SearchResult])
+def rag_search(q: str = Query(..., min_length=1), limit: int = Query(5, ge=1, le=10)) -> list[SearchResult]:
+    return [
+        SearchResult(
+            verse_id=result.verse["id"],
+            chapter_id=result.verse["chapter_id"],
+            chapter_name=result.verse["chapter_name"],
+            verse_number=result.verse["verse_number"],
+            excerpt=result.excerpt,
+            score=result.hybrid_score,
+        )
+        for result in rag.search(q, limit)
+    ]
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+def chat(request: ChatRequest) -> ChatResponse:
+    return ChatResponse.model_validate(rag.answer(request.question, request.limit))
+
+
+@app.get("/api/rag/status", response_model=RagStatus)
+def rag_status() -> RagStatus:
+    embedding_status = {}
+    if hasattr(repository, "get_embedding_status"):
+        try:
+            embedding_status = repository.get_embedding_status()
+        except Exception:
+            embedding_status = {}
+    return RagStatus(
+        repository=repository.repository_name,
+        mongodb_enabled=settings.use_mongodb,
+        retrieval_strategy=rag.retrieval_strategy,
+        embedding_provider=embedding_status.get("embedding_provider") or rag.embedding_provider.name,
+        llm_provider=rag.llm_client.name,
+        llm_enabled=rag.llm_client.enabled,
+        last_llm_error=rag.last_llm_error,
+        vector_index=embedding_status.get("vector_index") or settings.vector_search_index,
+        total_verses=embedding_status.get("total_verses"),
+        embedded_verses=embedding_status.get("embedded_verses"),
+    )
 
 
 @app.get("/api/quotes", response_model=list[QuoteItem])

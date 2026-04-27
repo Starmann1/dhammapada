@@ -148,6 +148,47 @@ class SearchResult(BaseModel):
     score: float
 
 
+class ChatRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=1000)
+    limit: int = Field(default=5, ge=1, le=10)
+
+
+class RagCitation(BaseModel):
+    verse_id: str
+    chapter_id: int
+    chapter_name: str
+    verse_number: int
+    slug: str
+    title: str
+    translation: str
+    excerpt: str
+    themes: list[str] = Field(default_factory=list)
+    lexical_score: float
+    semantic_score: float
+    hybrid_score: float
+    source_references: dict[str, SourceReference] = Field(default_factory=dict)
+
+
+class ChatResponse(BaseModel):
+    question: str
+    answer: str
+    citations: list[RagCitation] = Field(default_factory=list)
+    retrieval_strategy: str
+
+
+class RagStatus(BaseModel):
+    repository: str
+    mongodb_enabled: bool
+    retrieval_strategy: str
+    embedding_provider: str
+    llm_provider: str
+    llm_enabled: bool
+    last_llm_error: str | None = None
+    vector_index: str
+    total_verses: int | None = None
+    embedded_verses: int | None = None
+
+
 class VerseOfDayResponse(BaseModel):
     date: str
     verse: Verse

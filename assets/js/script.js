@@ -10,6 +10,8 @@ const PATHS = {
   chapter: (chapterId) => `${IS_PAGES_DIR ? 'chapter.html' : 'pages/chapter.html'}?id=${encodeURIComponent(chapterId)}`,
   verse: (verseId) => `${IS_PAGES_DIR ? 'verse.html' : 'pages/verse.html'}?id=${encodeURIComponent(verseId)}`
 };
+const SEARCH_RESULT_LIMIT = 20;
+const SEARCH_API_CACHE_TTL_MS = 30000;
 
 const state = {
   data: null,
@@ -17,7 +19,10 @@ const state = {
   verseById: new Map(),
   themeById: new Map(),
   loadError: null,
-  darkMode: localStorage.getItem('darkMode') === 'true'
+  darkMode: localStorage.getItem('darkMode') === 'true',
+  searchApiBase: null,
+  searchApiCheckedAt: 0,
+  searchRequestId: 0
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -25,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initScrollFeatures();
   initScrollToTop();
   initSearch();
+  initChat();
   initGlobalActions();
   setCurrentYear();
   markActiveNav();
@@ -1153,7 +1159,7 @@ function initSearch() {
   });
 
   searchInput.addEventListener('input', (event) => {
-    performSearch(event.target.value);
+    void performSearch(event.target.value);
   });
 
   document.addEventListener('keydown', (event) => {
@@ -1165,6 +1171,132 @@ function initSearch() {
       closeSearch();
     }
   });
+}
+
+function initChat() {
+  const chatRoot = document.createElement('div');
+  chatRoot.className = 'chat-widget';
+  chatRoot.innerHTML = `
+    <button class="chat-toggle" type="button" aria-label="Open Dhammapada chat" aria-expanded="false">
+      <span aria-hidden="true">AI</span>
+    </button>
+    <section class="chat-panel" aria-label="Dhammapada AI chat" hidden>
+      <div class="chat-panel-header">
+        <div>
+          <strong>Dhammapada Chat</strong>
+          <span>Grounded in verse citations</span>
+        </div>
+        <button class="chat-close" type="button" aria-label="Close chat">&times;</button>
+      </div>
+      <div class="chat-messages" data-chat-messages>
+        <div class="chat-message chat-message-assistant">
+          Ask about a teaching, theme, Pali term, or reference like 2:12.
+        </div>
+      </div>
+      <form class="chat-form" data-chat-form>
+        <textarea class="chat-input" name="question" rows="2" placeholder="Ask about anger, mindfulness, craving..." required></textarea>
+        <button class="chat-send" type="submit">Send</button>
+      </form>
+    </section>
+  `;
+
+  document.body.appendChild(chatRoot);
+
+  const toggle = chatRoot.querySelector('.chat-toggle');
+  const panel = chatRoot.querySelector('.chat-panel');
+  const closeButton = chatRoot.querySelector('.chat-close');
+  const form = chatRoot.querySelector('[data-chat-form]');
+  const input = chatRoot.querySelector('.chat-input');
+  const messages = chatRoot.querySelector('[data-chat-messages]');
+
+  const setOpen = (isOpen) => {
+    panel.hidden = !isOpen;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) {
+      input.focus();
+    }
+  };
+
+  toggle.addEventListener('click', () => setOpen(panel.hidden));
+  closeButton.addEventListener('click', () => setOpen(false));
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const question = input.value.trim();
+    if (!question) {
+      return;
+    }
+    input.value = '';
+    appendChatMessage(messages, question, 'user');
+    const pendingMessage = appendChatMessage(messages, 'Searching the Dhammapada...', 'assistant');
+
+    try {
+      const response = await askDhammapadaChat(question);
+      pendingMessage.outerHTML = renderChatAnswer(response);
+    } catch (error) {
+      console.warn('Chat request failed:', error);
+      pendingMessage.textContent = 'The chat backend returned an error. Check the FastAPI terminal and try again.';
+    }
+    messages.scrollTop = messages.scrollHeight;
+  });
+}
+
+function appendChatMessage(container, text, role) {
+  const message = document.createElement('div');
+  message.className = `chat-message chat-message-${role}`;
+  message.textContent = text;
+  container.appendChild(message);
+  container.scrollTop = container.scrollHeight;
+  return message;
+}
+
+async function askDhammapadaChat(question) {
+  resetSearchApiDiscovery();
+  const apiBase = await resolveSearchApiBase();
+  if (!apiBase) {
+    throw new Error('Chat API unavailable');
+  }
+
+  const response = await fetch(`${apiBase}/chat`, {
+    method: 'POST',
+    cache: 'no-store',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      question,
+      limit: 5
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+function renderChatAnswer(response) {
+  const paragraphs = String(response.answer || '')
+    .split(/\n{2,}/)
+    .filter(Boolean)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join('');
+  const citations = Array.isArray(response.citations) ? response.citations.slice(0, 5) : [];
+
+  return `
+    <div class="chat-message chat-message-assistant">
+      <div class="chat-answer">${paragraphs}</div>
+      ${citations.length ? `
+        <div class="chat-citations">
+          ${citations.map((citation) => `
+            <a class="chat-citation" href="${PATHS.verse(citation.verse_id)}">
+              <span>${escapeHtml(citation.title)}</span>
+              <small>Score ${Number(citation.hybrid_score || 0).toFixed(2)}</small>
+            </a>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
 }
 
 function openSearch(initialValue) {
@@ -1182,7 +1314,7 @@ function openSearch(initialValue) {
   searchModal.classList.add('active');
   searchInput.value = initialValue || '';
   searchInput.focus();
-  performSearch(searchInput.value);
+  void performSearch(searchInput.value);
 }
 
 function openThemeBrowser() {
@@ -1253,10 +1385,16 @@ function parseVerseLookup(query) {
   const chapterVerseMatch = trimmed.match(/^(\d+)\s*[:.\-]\s*(\d+)$/);
   if (chapterVerseMatch) {
     const chapterId = Number(chapterVerseMatch[1]);
-    const verseNumber = Number(chapterVerseMatch[2]);
+    const verseReference = Number(chapterVerseMatch[2]);
     const chapter = state.chapterById.get(chapterId);
-    const verse = chapter?.verses.find((item) => item.verse_number === verseNumber);
-    return verse || null;
+    if (!chapter) {
+      return null;
+    }
+    const canonicalVerse = chapter.verses.find((item) => item.verse_number === verseReference);
+    if (canonicalVerse) {
+      return canonicalVerse;
+    }
+    return chapter.verses[verseReference - 1] || null;
   }
 
   const exactVerseMatch = trimmed.match(/^\d+$/);
@@ -1268,11 +1406,13 @@ function parseVerseLookup(query) {
   return null;
 }
 
-function performSearch(query) {
+async function performSearch(query) {
   const searchResults = document.getElementById('searchResults');
   if (!searchResults) {
     return;
   }
+
+  const requestId = ++state.searchRequestId;
 
   if (!state.data) {
     searchResults.innerHTML = '<div class="search-no-results">Loading verse index...</div>';
@@ -1292,6 +1432,22 @@ function performSearch(query) {
     return;
   }
 
+  if (shouldShowRemoteSearchLoading()) {
+    searchResults.innerHTML = '<div class="search-no-results">Searching verses...</div>';
+  }
+
+  const apiResults = await searchVersesWithApi(trimmed);
+  if (requestId !== state.searchRequestId) {
+    return;
+  }
+
+  const topResults = apiResults || searchVersesLocally(trimmed, SEARCH_RESULT_LIMIT);
+  renderSearchResults(searchResults, topResults, trimmed);
+}
+
+function searchVersesLocally(query, limit = SEARCH_RESULT_LIMIT) {
+  const trimmed = query.trim();
+  const directVerse = parseVerseLookup(trimmed);
   const results = [];
   const lowered = trimmed.toLowerCase();
 
@@ -1340,29 +1496,36 @@ function performSearch(query) {
       score += 20;
     }
 
-    results.push({ verse, score });
+    results.push({
+      verse_id: verse.id,
+      chapter_id: verse.chapter_id,
+      chapter_name: verse.chapter_name,
+      verse_number: verse.verse_number,
+      excerpt: buildSearchSnippet(verse, trimmed),
+      score
+    });
   });
 
-  results.sort((left, right) => right.score - left.score || left.verse.verse_number - right.verse.verse_number);
-  const topResults = results.slice(0, 20);
+  results.sort((left, right) => right.score - left.score || left.verse_number - right.verse_number);
+  return results.slice(0, limit);
+}
 
-  if (topResults.length === 0) {
-    searchResults.innerHTML = `<div class="search-no-results">No verses matched "${escapeHtml(trimmed)}".</div>`;
+function renderSearchResults(container, results, query) {
+  if (results.length === 0) {
+    container.innerHTML = `<div class="search-no-results">No verses matched "${escapeHtml(query)}".</div>`;
     return;
   }
 
-  searchResults.innerHTML = `
-    <div class="search-results-meta">${topResults.length} result${topResults.length === 1 ? '' : 's'}</div>
-    ${topResults.map(({ verse }) => {
-      const chapter = state.chapterById.get(verse.chapter_id);
-      const excerpt = buildSearchSnippet(verse, trimmed);
+  container.innerHTML = `
+    <div class="search-results-meta">${results.length} result${results.length === 1 ? '' : 's'}</div>
+    ${results.map((item) => {
       return `
-        <a class="search-result-item" href="${PATHS.verse(verse.id)}">
+        <a class="search-result-item" href="${PATHS.verse(item.verse_id)}">
           <div class="search-result-head">
-            <div class="search-result-chapter">Chapter ${chapter.id}: ${escapeHtml(chapter.name_en)}</div>
-            <div class="search-result-reference">Verse ${verse.verse_number}</div>
+            <div class="search-result-chapter">Chapter ${item.chapter_id}: ${escapeHtml(item.chapter_name)}</div>
+            <div class="search-result-reference">Verse ${item.verse_number}</div>
           </div>
-          <div class="search-result-text">${excerpt}</div>
+          <div class="search-result-text">${highlightText(item.excerpt, query)}</div>
         </a>
       `;
     }).join('')}
@@ -1377,8 +1540,78 @@ function buildSearchSnippet(verse, query) {
     verse.story?.content || ''
   ];
   const source = sources.find((item) => item.toLowerCase().includes(query.toLowerCase())) || verse.translation;
-  const snippet = excerptAroundMatch(source, query, 140);
-  return highlightText(snippet, query);
+  return excerptAroundMatch(source, query, 140);
+}
+
+function getSearchApiCandidates() {
+  const candidates = [];
+  if (window.location.origin && window.location.origin !== 'null') {
+    candidates.push(`${window.location.origin}/api`);
+  }
+  candidates.push(
+    'http://127.0.0.1:8001/api',
+    'http://localhost:8001/api',
+    'http://127.0.0.1:8000/api',
+    'http://localhost:8000/api'
+  );
+  return [...new Set(candidates)];
+}
+
+function shouldShowRemoteSearchLoading() {
+  return Boolean(state.searchApiBase) || Date.now() - state.searchApiCheckedAt >= SEARCH_API_CACHE_TTL_MS;
+}
+
+async function resolveSearchApiBase() {
+  if (Date.now() - state.searchApiCheckedAt < SEARCH_API_CACHE_TTL_MS) {
+    return state.searchApiBase;
+  }
+
+  for (const candidate of getSearchApiCandidates()) {
+    try {
+      const response = await fetch(`${candidate}/health`, { cache: 'no-store' });
+      if (!response.ok) {
+        continue;
+      }
+      state.searchApiBase = candidate;
+      state.searchApiCheckedAt = Date.now();
+      return candidate;
+    } catch (error) {
+      console.warn(`Search API probe failed for ${candidate}:`, error);
+    }
+  }
+
+  state.searchApiBase = null;
+  state.searchApiCheckedAt = Date.now();
+  return null;
+}
+
+function resetSearchApiDiscovery() {
+  state.searchApiBase = null;
+  state.searchApiCheckedAt = 0;
+}
+
+async function searchVersesWithApi(query) {
+  const apiBase = await resolveSearchApiBase();
+  if (!apiBase) {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    q: query,
+    limit: String(SEARCH_RESULT_LIMIT)
+  });
+
+  try {
+    const response = await fetch(`${apiBase}/search?${params.toString()}`, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.warn('Search API request failed, using local fallback:', error);
+    resetSearchApiDiscovery();
+    return null;
+  }
 }
 
 function excerptAroundMatch(text, query, length) {
