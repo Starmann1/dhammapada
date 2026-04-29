@@ -37,22 +37,32 @@ class LlmClient:
         context = self._format_context(citations)
         payload = {
             "model": self.model,
-            "instructions": (
-                "You are a careful Dhammapada study assistant. Use the provided Dhammapada context as the "
-                "only authority for claims about the Dhammapada. Always cite exact references such as "
-                "Dhammapada 17:223. If the retrieved context is insufficient, say so clearly. "
-                "When the user asks for comparison with other philosophical traditions, you may add a short "
-                "section titled 'Comparative note' using general philosophical knowledge, but you must clearly "
-                "separate it from what the Dhammapada passages establish. Do not invent scripture citations."
-            ),
-            "input": (
-                f"Question:\n{question}\n\n"
-                f"Retrieved Dhammapada context:\n{context}\n\n"
-                "Write a concise, helpful answer. Prefer 2-5 short paragraphs. Include verse citations inline."
-            ),
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a careful Dhammapada study assistant. Use the provided Dhammapada context as the "
+                        "only authority for claims about the Dhammapada. Always cite exact references such as "
+                        "Dhammapada 17:223. If the retrieved context is insufficient, say so clearly. "
+                        "When the user asks for comparison with other philosophical traditions, you may add a short "
+                        "section titled 'Comparative note' using general philosophical knowledge, but you must clearly "
+                        "separate it from what the Dhammapada passages establish. Do not invent scripture citations. "
+                        "Your tone should be compassionate, wise, and practical."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Question:\n{question}\n\n"
+                        f"Retrieved Dhammapada context:\n{context}\n\n"
+                        "Write a concise, helpful answer. Prefer 2-5 short paragraphs. Include verse citations inline."
+                    ),
+                },
+            ],
+            "temperature": 0.3,
         }
         request = urllib.request.Request(
-            "https://api.openai.com/v1/responses",
+            "https://api.openai.com/v1/chat/completions",
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Authorization": f"Bearer {self.api_key}",
@@ -67,16 +77,11 @@ class LlmClient:
             detail = error.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"OpenAI LLM request failed: HTTP {error.code}: {detail}") from error
 
-        output_text = data.get("output_text")
-        if output_text:
-            return str(output_text).strip()
+        choices = data.get("choices", [])
+        if not choices:
+            raise RuntimeError(f"OpenAI LLM returned no choices: {data}")
 
-        text_parts: list[str] = []
-        for output in data.get("output", []):
-            for content in output.get("content", []):
-                if content.get("type") in {"output_text", "text"} and content.get("text"):
-                    text_parts.append(str(content["text"]))
-        return "\n".join(text_parts).strip()
+        return str(choices[0]["message"]["content"]).strip()
 
     def _format_context(self, citations: list[dict[str, Any]]) -> str:
         blocks = []
