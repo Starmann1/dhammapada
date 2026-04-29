@@ -1545,15 +1545,23 @@ function buildSearchSnippet(verse, query) {
 
 function getSearchApiCandidates() {
   const candidates = [];
-  if (window.location.origin && window.location.origin !== 'null') {
-    candidates.push(`${window.location.origin}/api`);
+  const origin = window.location.origin;
+  
+  // 1. Prioritize the current origin (essential for Vercel deployment)
+  if (origin && origin !== 'null') {
+    candidates.push(`${origin}/api`);
   }
-  candidates.push(
-    'http://127.0.0.1:8001/api',
-    'http://localhost:8001/api',
-    'http://127.0.0.1:8000/api',
-    'http://localhost:8000/api'
-  );
+
+  // 2. Only add local development candidates if we are actually working locally
+  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    candidates.push(
+      'http://127.0.0.1:8001/api',
+      'http://localhost:8001/api',
+      'http://127.0.0.1:8000/api',
+      'http://localhost:8000/api'
+    );
+  }
+  
   return [...new Set(candidates)];
 }
 
