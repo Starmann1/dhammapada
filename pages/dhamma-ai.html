@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ask questions about the Dhammapada and receive answers grounded in verse citations. An AI study companion for the Buddha's teachings.">
+    <meta name="keywords" content="Dhammapada, Buddhism, AI, chat, Buddha teachings">
+    <meta name="theme-color" content="#d4a02e">
+    <title>Dhamma AI — The Dhammapada</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/dhamma-ai.css">
+</head>
+
+<body class="dark-mode">
+    <div class="dai-layout">
+        <!-- Sidebar -->
+        <aside class="dai-sidebar" id="daiSidebar">
+            <div class="dai-sidebar-header">
+                <a href="../index.html" class="dai-logo">
+                    <img src="../assets/images/dharmachakra.png" alt="Dharmachakra" width="22" height="22">
+                    <span>The Dhammapada</span>
+                </a>
+                <button class="dai-sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <button class="dai-new-chat-btn" id="newChatBtn" type="button">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                New Session
+            </button>
+
+            <div class="dai-sessions-list" id="sessionsList">
+                <div class="dai-sessions-empty" id="sessionsEmpty">
+                    <p>No study sessions yet.</p>
+                    <p>Start a new chat!</p>
+                </div>
+            </div>
+
+            <div class="dai-sidebar-footer">
+                <a href="about.html" class="dai-footer-link">About</a>
+                <a href="faq.html" class="dai-footer-link">FAQ</a>
+                <span class="dai-footer-note">AI can make mistakes. Consult the original texts for deeper understanding.</span>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="dai-main" id="daiMain">
+            <!-- Top bar -->
+            <header class="dai-topbar">
+                <button class="dai-menu-btn" id="menuBtn" aria-label="Open sidebar">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <span class="dai-topbar-title">Dhamma AI</span>
+                <div class="dai-topbar-actions">
+                    <button class="btn-icon" id="darkModeToggle" title="Toggle Dark Mode" type="button">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Messages Area -->
+            <div class="dai-messages-area" id="messagesArea">
+                <!-- Welcome screen shown when no messages -->
+                <div class="dai-welcome" id="daiWelcome">
+                    <div class="dai-welcome-icon">☸</div>
+                    <h1 class="dai-welcome-title">Welcome to Dhamma AI</h1>
+                    <p class="dai-welcome-subtitle">Ask any question about the Dhammapada — a teaching, theme, Pali term, or verse reference like <em>1:1</em>.</p>
+                    <div class="dai-suggestions">
+                        <button class="dai-suggestion" data-query="What does the Dhammapada say about mindfulness?">What does the Dhammapada say about mindfulness?</button>
+                        <button class="dai-suggestion" data-query="Explain the first verse of the Dhammapada">Explain the very first verse</button>
+                        <button class="dai-suggestion" data-query="What is the Buddhist teaching on anger?">What does it teach about anger?</button>
+                        <button class="dai-suggestion" data-query="Explain the concept of impermanence in the Dhammapada">Impermanence in the Dhammapada</button>
+                    </div>
+                </div>
+
+                <!-- Messages container (hidden initially) -->
+                <div class="dai-messages" id="daiMessages" hidden></div>
+            </div>
+
+            <!-- Input Form -->
+            <div class="dai-input-area">
+                <form class="dai-input-form" id="daiForm">
+                    <textarea
+                        class="dai-textarea"
+                        id="daiInput"
+                        placeholder="Ask about a teaching, theme, Pali term, or reference like 2:12..."
+                        rows="1"
+                        required
+                    ></textarea>
+                    <button class="dai-send-btn" id="daiSendBtn" type="submit" aria-label="Send">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+                <p class="dai-disclaimer">Answers are grounded in Dhammapada verse citations.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/dhamma-ai.js"></script>
+</body>
+</html>

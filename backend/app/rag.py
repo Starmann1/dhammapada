@@ -65,6 +65,7 @@ QUERY_EXPANSIONS = {
     "nondual": "not-self self craving clinging pairs duality nirvana nibbana unconditioned",
     "non-duality": "not-self self craving clinging pairs duality nirvana nibbana unconditioned",
     "nonduality": "not-self self craving clinging pairs duality nirvana nibbana unconditioned",
+    "first": "1:1 mano pubbangama mind forerunner states",
 }
 
 
@@ -307,7 +308,22 @@ class StructuredHybridRag:
         return len(query_terms & text_terms) / len(query_terms)
 
     def _lookup_direct_verse(self, query: str) -> dict[str, Any] | None:
-        trimmed = query.strip()
+        trimmed = query.lower().strip()
+        
+        # Handle ordinal descriptions
+        if "first verse" in trimmed or "very first" in trimmed:
+            return self.repository.get_verse(1, 1)
+        
+        # Handle "verse [number]" (global verse number)
+        global_match = re.search(r"\b(?:verse|dhp)\s*(\d{1,3})\b", trimmed)
+        if global_match:
+            verse_num = int(global_match.group(1))
+            # Try to find the verse with this global number
+            for v in self.verses:
+                if v.get("verse_number") == verse_num:
+                    return v
+
+        # Existing chapter:verse regex
         match = re.search(r"\b(?:dhp|dhammapada|verse)?\s*(\d{1,2})\s*[:.-]\s*(\d{1,3})\b", trimmed, flags=re.I)
         if match:
             chapter_id = int(match.group(1))

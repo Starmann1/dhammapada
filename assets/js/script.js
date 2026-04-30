@@ -19,7 +19,7 @@ const state = {
   verseById: new Map(),
   themeById: new Map(),
   loadError: null,
-  darkMode: localStorage.getItem('darkMode') === 'true',
+  darkMode: localStorage.getItem('darkMode') !== 'false',
   searchApiBase: null,
   searchApiCheckedAt: 0,
   searchRequestId: 0
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initScrollFeatures();
   initScrollToTop();
   initSearch();
-  initChat();
+  initMiniChat();
   initGlobalActions();
   setCurrentYear();
   markActiveNav();
@@ -974,9 +974,7 @@ function getPopularThemes() {
 }
 
 function initDarkMode() {
-  if (state.darkMode) {
-    document.body.classList.add('dark-mode');
-  }
+  document.body.classList.toggle('dark-mode', state.darkMode);
 
   const darkModeToggle = document.getElementById('darkModeToggle');
   if (!darkModeToggle) {
@@ -1173,128 +1171,225 @@ function initSearch() {
   });
 }
 
-function initChat() {
-  const chatRoot = document.createElement('div');
-  chatRoot.className = 'chat-widget';
-  chatRoot.innerHTML = `
-    <section class="chat-panel" aria-label="Dhammapada AI chat" hidden>
-      <div class="chat-panel-header">
-        <div>
-          <strong>Dhammapada Chat</strong>
-          <span>Grounded in verse citations</span>
-        </div>
-        <button class="chat-close" type="button" aria-label="Close chat">&times;</button>
+function initMiniChat() {
+  const navBtn = document.getElementById('dhammaAiNavBtn');
+  if (!navBtn) return; // Only activate on verse/chapter pages
+
+  // Build panel HTML
+  const panel = document.createElement('div');
+  panel.className = 'mini-chat-panel';
+  panel.setAttribute('aria-label', 'Dhamma AI side panel');
+  panel.innerHTML = `
+    <div class="mini-chat-resize" id="miniChatResize" title="Drag to resize"></div>
+    <div class="mini-chat-header">
+      <div>
+        <div class="mini-chat-title">☸ Dhamma AI</div>
+        <div class="mini-chat-subtitle">Ask about this verse or any teaching</div>
       </div>
-      <div class="chat-messages" data-chat-messages>
-        <div class="chat-message chat-message-assistant">
-          Ask about a teaching, theme, Pali term, or reference like 2:12.
-        </div>
-      </div>
-      <form class="chat-form" data-chat-form>
-        <textarea class="chat-input" name="question" rows="2" placeholder="Ask about anger, mindfulness, craving..." required></textarea>
-        <button class="chat-send" type="submit">Send</button>
-      </form>
-    </section>
+      <button class="mini-chat-close" id="miniChatClose" type="button" aria-label="Close panel">✕</button>
+    </div>
+    <div class="mini-chat-messages" id="miniChatMessages">
+      <div class="mini-chat-msg assistant">Ask me anything about this verse, a Pali term, or any teaching in the Dhammapada.</div>
+    </div>
+    <form class="mini-chat-form" id="miniChatForm">
+      <textarea class="mini-chat-input" id="miniChatInput" rows="1" placeholder="Ask about this verse..." required></textarea>
+      <button class="mini-chat-send" id="miniChatSend" type="submit" aria-label="Send">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </form>
   `;
 
-  document.body.appendChild(chatRoot);
+  const overlay = document.createElement('div');
+  overlay.className = 'mini-chat-overlay';
+  overlay.id = 'miniChatOverlay';
 
-  const toggle = document.getElementById('navChatToggle');
-  const panel = chatRoot.querySelector('.chat-panel');
-  const closeButton = chatRoot.querySelector('.chat-close');
-  const form = chatRoot.querySelector('[data-chat-form]');
-  const input = chatRoot.querySelector('.chat-input');
-  const messages = chatRoot.querySelector('[data-chat-messages]');
+  document.body.appendChild(panel);
+  document.body.appendChild(overlay);
 
-  const setOpen = (isOpen) => {
-    panel.hidden = !isOpen;
-    if (toggle) toggle.setAttribute('aria-expanded', String(isOpen));
-    if (isOpen) {
-      input.focus();
+  const messages  = panel.querySelector('#miniChatMessages');
+  const form      = panel.querySelector('#miniChatForm');
+  const input     = panel.querySelector('#miniChatInput');
+  const sendBtn   = panel.querySelector('#miniChatSend');
+  const closeBtn  = panel.querySelector('#miniChatClose');
+  const resizeBar = panel.querySelector('#miniChatResize');
+
+  function openPanel() {
+    panel.classList.add('open');
+    overlay.classList.add('visible');
+    input.focus();
+    navBtn.setAttribute('aria-expanded', 'true');
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    overlay.classList.remove('visible');
+    navBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  navBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    panel.classList.contains('open') ? closePanel() : openPanel();
+  });
+  closeBtn.addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+
+  // Auto-grow textarea
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+  });
+
+  // Enter = send, Shift+Enter = newline
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
     }
-  };
+  });
 
-  if (toggle) toggle.addEventListener('click', () => setOpen(panel.hidden));
-  closeButton.addEventListener('click', () => setOpen(false));
+  // ── Context detection from URL ───────────────────────────
+  function getPageContext() {
+    const page = document.body.dataset.page || '';
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id') || '';
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
+    if (page === 'verse' && id) {
+      // id is like "1-2" → chapter 1, verse 2
+      const parts = id.split('-');
+      const chapterId = parseInt(parts[0], 10);
+      const verseNumber = parseInt(parts[1], 10);
+      if (!isNaN(chapterId) && !isNaN(verseNumber)) {
+        // Try to get chapter name from state (property is name_en)
+        const chapter = state.chapterById ? state.chapterById.get(chapterId) : null;
+        const chapterName = chapter ? (chapter.name_en || chapter.name || `Chapter ${chapterId}`) : `Chapter ${chapterId}`;
+        return {
+          prefix: `I am currently reading Dhammapada ${chapterId}:${verseNumber} from Chapter ${chapterId} (${chapterName}). Focus your answer on this specific verse. `,
+          label: `Verse ${chapterId}:${verseNumber} — ${chapterName}`,
+        };
+      }
+    }
+
+    if (page === 'chapter' && id) {
+      const chapterId = parseInt(id, 10);
+      if (!isNaN(chapterId)) {
+        const chapter = state.chapterById ? state.chapterById.get(chapterId) : null;
+        const chapterName = chapter ? (chapter.name_en || chapter.name || `Chapter ${chapterId}`) : `Chapter ${chapterId}`;
+        return {
+          prefix: `I am currently reading Dhammapada Chapter ${chapterId}: ${chapterName}. Focus your answer on this chapter's verses. `,
+          label: `Chapter ${chapterId} — ${chapterName}`,
+        };
+      }
+    }
+
+    return { prefix: '', label: 'Ask about any verse or teaching' };
+  }
+
+  // Update subtitle and placeholder once data loads
+  function refreshContextUI() {
+    const ctx = getPageContext();
+    const subtitle = panel.querySelector('.mini-chat-subtitle');
+    const inputEl  = panel.querySelector('.mini-chat-input');
+    if (subtitle && ctx.label) subtitle.textContent = ctx.label;
+    if (inputEl && ctx.prefix) inputEl.placeholder = 'Ask about this verse or any teaching…';
+  }
+
+  // Refresh immediately and also after data may have loaded
+  refreshContextUI();
+  setTimeout(refreshContextUI, 1500);
+
+  // Chat form submit
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const question = input.value.trim();
-    if (!question) {
-      return;
-    }
+    if (!question) return;
+
     input.value = '';
-    appendChatMessage(messages, question, 'user');
-    const pendingMessage = appendChatMessage(messages, 'Searching the Dhammapada...', 'assistant');
+    input.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    // Build context-enriched question (invisible to user in UI)
+    const ctx = getPageContext();
+    const enrichedQuestion = ctx.prefix
+      ? `${ctx.prefix}${question}`
+      : question;
+
+    // User bubble — show only what the user typed
+    const userMsg = document.createElement('div');
+    userMsg.className = 'mini-chat-msg user';
+    userMsg.textContent = question;
+    messages.appendChild(userMsg);
+
+    // Loading bubble
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'mini-chat-msg assistant';
+    loadingMsg.innerHTML = '<div class="mini-dots"><span></span><span></span><span></span></div>';
+    messages.appendChild(loadingMsg);
+    messages.scrollTop = messages.scrollHeight;
 
     try {
-      const response = await askDhammapadaChat(question);
-      pendingMessage.outerHTML = renderChatAnswer(response);
-    } catch (error) {
-      console.warn('Chat request failed:', error);
-      pendingMessage.textContent = 'The chat backend returned an error. Check the FastAPI terminal and try again.';
+      const apiBase = await resolveSearchApiBase();
+      const endpoint = apiBase ? `${apiBase}/chat` : '/api/chat';
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: enrichedQuestion, limit: 5 }),
+      });
+
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      const answer = String(data.answer || '').split(/\n{2,}/).filter(Boolean)
+        .map(p => `<p>${escapeHtml(p)}</p>`).join('');
+      const citations = (data.citations || []).slice(0, 5);
+      const citationsHtml = citations.length ? `
+        <div class="mini-citations">
+          ${citations.map(c => `
+            <a class="mini-citation" href="${PATHS.verse(c.verse_id)}" title="${escapeHtml(c.title)}">
+              <span>${escapeHtml(c.title)}</span>
+              <small>${Number(c.hybrid_score || 0).toFixed(2)}</small>
+            </a>`).join('')}
+        </div>` : '';
+
+      loadingMsg.innerHTML = answer + citationsHtml;
+    } catch (err) {
+      loadingMsg.textContent = 'Could not reach the backend. Make sure the server is running.';
     }
+
     messages.scrollTop = messages.scrollHeight;
+    sendBtn.disabled = false;
+  });
+
+  // ── Resize drag handle ────────────────────────────────────
+  let isResizing = false;
+  let startX = 0;
+  let startWidth = 0;
+
+  resizeBar.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    startX = e.clientX;
+    startWidth = panel.offsetWidth;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'ew-resize';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    const delta = startX - e.clientX;
+    const newWidth = Math.min(Math.max(startWidth + delta, 280), 680);
+    panel.style.width = newWidth + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!isResizing) return;
+    isResizing = false;
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
   });
 }
 
-function appendChatMessage(container, text, role) {
-  const message = document.createElement('div');
-  message.className = `chat-message chat-message-${role}`;
-  message.textContent = text;
-  container.appendChild(message);
-  container.scrollTop = container.scrollHeight;
-  return message;
-}
 
-async function askDhammapadaChat(question) {
-  resetSearchApiDiscovery();
-  const apiBase = await resolveSearchApiBase();
-  if (!apiBase) {
-    throw new Error('Chat API unavailable');
-  }
-
-  const response = await fetch(`${apiBase}/chat`, {
-    method: 'POST',
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      question,
-      limit: 5
-    })
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-  return response.json();
-}
-
-function renderChatAnswer(response) {
-  const paragraphs = String(response.answer || '')
-    .split(/\n{2,}/)
-    .filter(Boolean)
-    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
-    .join('');
-  const citations = Array.isArray(response.citations) ? response.citations.slice(0, 5) : [];
-
-  return `
-    <div class="chat-message chat-message-assistant">
-      <div class="chat-answer">${paragraphs}</div>
-      ${citations.length ? `
-        <div class="chat-citations">
-          ${citations.map((citation) => `
-            <a class="chat-citation" href="${PATHS.verse(citation.verse_id)}">
-              <span>${escapeHtml(citation.title)}</span>
-              <small>Score ${Number(citation.hybrid_score || 0).toFixed(2)}</small>
-            </a>
-          `).join('')}
-        </div>
-      ` : ''}
-    </div>
-  `;
-}
 
 function openSearch(initialValue) {
   const searchModal = document.getElementById('searchModal');
