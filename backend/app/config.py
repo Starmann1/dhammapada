@@ -52,7 +52,7 @@ def get_settings() -> Settings:
         groq_api_key=os.getenv("GROQ_API_KEY"),
         vector_search_index=os.getenv("MONGODB_VECTOR_SEARCH_INDEX", "verse_vector_index"),
         llm_provider=os.getenv("LLM_PROVIDER", "none").lower().strip(),
-        llm_model=os.getenv("LLM_MODEL", "llama3-8b-8192"),
+        llm_model=os.getenv("LLM_MODEL", "llama-3.3-70b-versatile"),
         llm_base_url=os.getenv("LLM_BASE_URL"),
     )
 
