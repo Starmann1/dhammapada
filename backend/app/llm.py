@@ -37,39 +37,43 @@ class LlmClient:
 
     def _answer_gemini(self, question: str, citations: list[dict[str, Any]]) -> str:
         context = self._format_context(citations)
+        system_instruction = (
+            "You are a careful Dhammapada study assistant. Use the provided Dhammapada context as the "
+            "only authority for claims about the Dhammapada. Always cite exact references such as "
+            "Dhammapada 17:223. If the retrieved context is insufficient, say so clearly. "
+            "When the user asks for comparison with other philosophical traditions, you may add a short "
+            "section titled 'Comparative note' using general philosophical knowledge, but you must clearly "
+            "separate it from what the Dhammapada passages establish. Do not invent scripture citations. "
+            "Your tone should be compassionate, wise, and practical."
+        )
+        prompt = (
+            f"Question:\n{question}\n\n"
+            f"Retrieved Dhammapada context:\n{context}\n\n"
+            "Write a concise, helpful answer. Prefer 2-5 short paragraphs. Include verse citations inline."
+        )
+        
         payload = {
-            "model": self.model,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a careful Dhammapada study assistant. Use the provided Dhammapada context as the "
-                        "only authority for claims about the Dhammapada. Always cite exact references such as "
-                        "Dhammapada 17:223. If the retrieved context is insufficient, say so clearly. "
-                        "When the user asks for comparison with other philosophical traditions, you may add a short "
-                        "section titled 'Comparative note' using general philosophical knowledge, but you must clearly "
-                        "separate it from what the Dhammapada passages establish. Do not invent scripture citations. "
-                        "Your tone should be compassionate, wise, and practical."
-                    ),
-                },
+            "system_instruction": {
+                "parts": [{"text": system_instruction}]
+            },
+            "contents": [
                 {
                     "role": "user",
-                    "content": (
-                        f"Question:\n{question}\n\n"
-                        f"Retrieved Dhammapada context:\n{context}\n\n"
-                        "Write a concise, helpful answer. Prefer 2-5 short paragraphs. Include verse citations inline."
-                    ),
-                },
+                    "parts": [{"text": prompt}]
+                }
             ],
-            "temperature": 0.3,
+            "generationConfig": {
+                "temperature": 0.3
+            }
         }
+        
+        # Native Gemini URL with API key in query params
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        
         request = urllib.request.Request(
-            self.base_url,
+            url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            },
+            headers={"Content-Type": "application/json"},
             method="POST",
         )
         try:
@@ -79,11 +83,10 @@ class LlmClient:
             detail = error.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"Gemini LLM request failed: HTTP {error.code}: {detail}") from error
 
-        choices = data.get("choices", [])
-        if not choices:
-            raise RuntimeError(f"Gemini LLM returned no choices: {data}")
-
-        return str(choices[0]["message"]["content"]).strip()
+        try:
+            return str(data["candidates"][0]["content"]["parts"][0]["text"]).strip()
+        except (KeyError, IndexError):
+            raise RuntimeError(f"Gemini LLM returned unexpected format: {data}")
 
     def _format_context(self, citations: list[dict[str, Any]]) -> str:
         blocks = []
