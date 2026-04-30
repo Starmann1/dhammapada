@@ -5,8 +5,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env file if it exists
-load_dotenv()
+project_root = Path(__file__).resolve().parents[2]
+env_path = project_root / "backend" / ".env"
+if not env_path.exists():
+    env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
 
 @dataclass(frozen=True)
 class Settings:
