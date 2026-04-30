@@ -52,7 +52,7 @@ def get_settings() -> Settings:
         gemini_api_key=os.getenv("GEMINI_API_KEY"),
         vector_search_index=os.getenv("MONGODB_VECTOR_SEARCH_INDEX", "verse_vector_index"),
         llm_provider=os.getenv("LLM_PROVIDER", "none").lower().strip(),
-        llm_model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
+        llm_model=os.getenv("LLM_MODEL", "gemini-2.0-flash"),
         llm_base_url=os.getenv("LLM_BASE_URL"),
     )
 
