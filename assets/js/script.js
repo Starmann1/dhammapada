@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const IS_PAGES_DIR = window.location.pathname.includes('/pages/');
 const PATHS = {
@@ -1177,9 +1177,6 @@ function initChat() {
   const chatRoot = document.createElement('div');
   chatRoot.className = 'chat-widget';
   chatRoot.innerHTML = `
-    <button class="chat-toggle" type="button" aria-label="Open Dhammapada chat" aria-expanded="false">
-      <span aria-hidden="true">AI</span>
-    </button>
     <section class="chat-panel" aria-label="Dhammapada AI chat" hidden>
       <div class="chat-panel-header">
         <div>
@@ -1202,7 +1199,7 @@ function initChat() {
 
   document.body.appendChild(chatRoot);
 
-  const toggle = chatRoot.querySelector('.chat-toggle');
+  const toggle = document.getElementById('navChatToggle');
   const panel = chatRoot.querySelector('.chat-panel');
   const closeButton = chatRoot.querySelector('.chat-close');
   const form = chatRoot.querySelector('[data-chat-form]');
@@ -1211,13 +1208,13 @@ function initChat() {
 
   const setOpen = (isOpen) => {
     panel.hidden = !isOpen;
-    toggle.setAttribute('aria-expanded', String(isOpen));
+    if (toggle) toggle.setAttribute('aria-expanded', String(isOpen));
     if (isOpen) {
       input.focus();
     }
   };
 
-  toggle.addEventListener('click', () => setOpen(panel.hidden));
+  if (toggle) toggle.addEventListener('click', () => setOpen(panel.hidden));
   closeButton.addEventListener('click', () => setOpen(false));
 
   form.addEventListener('submit', async (event) => {
