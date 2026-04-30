@@ -40,7 +40,7 @@ class EmbeddingProvider:
         provider: str = settings.embedding_provider,
         model: str = settings.embedding_model,
         dimensions: int = settings.embedding_dimensions,
-        api_key: str | None = settings.openai_api_key,
+        api_key: str | None = settings.gemini_api_key,
     ) -> None:
         self.provider = provider
         self.model = model
