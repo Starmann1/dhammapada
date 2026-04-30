@@ -19,10 +19,11 @@ class Settings:
     embedding_provider: str
     embedding_model: str
     embedding_dimensions: int
-    openai_api_key: str | None
+    gemini_api_key: str | None
     vector_search_index: str
     llm_provider: str
     llm_model: str
+    llm_base_url: str | None
 
     @property
     def use_mongodb(self) -> bool:
@@ -48,10 +49,11 @@ def get_settings() -> Settings:
         embedding_provider=embedding_provider,
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         embedding_dimensions=int(os.getenv("EMBEDDING_DIMENSIONS", default_dimensions)),
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        gemini_api_key=os.getenv("GEMINI_API_KEY"),
         vector_search_index=os.getenv("MONGODB_VECTOR_SEARCH_INDEX", "verse_vector_index"),
         llm_provider=os.getenv("LLM_PROVIDER", "none").lower().strip(),
         llm_model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
+        llm_base_url=os.getenv("LLM_BASE_URL"),
     )
 
 

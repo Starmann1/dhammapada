@@ -14,15 +14,17 @@ class LlmClient:
         *,
         provider: str = settings.llm_provider,
         model: str = settings.llm_model,
-        api_key: str | None = settings.openai_api_key,
+        api_key: str | None = settings.gemini_api_key,
+        base_url: str | None = settings.llm_base_url,
     ) -> None:
         self.provider = provider
         self.model = model
         self.api_key = api_key
+        self.base_url = base_url or "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
     @property
     def enabled(self) -> bool:
-        return self.provider == "openai" and bool(self.api_key)
+        return self.provider == "gemini" and bool(self.api_key)
 
     @property
     def name(self) -> str:
@@ -31,9 +33,9 @@ class LlmClient:
     def answer(self, question: str, citations: list[dict[str, Any]]) -> str | None:
         if not self.enabled:
             return None
-        return self._answer_openai(question, citations)
+        return self._answer_gemini(question, citations)
 
-    def _answer_openai(self, question: str, citations: list[dict[str, Any]]) -> str:
+    def _answer_gemini(self, question: str, citations: list[dict[str, Any]]) -> str:
         context = self._format_context(citations)
         payload = {
             "model": self.model,
@@ -62,7 +64,7 @@ class LlmClient:
             "temperature": 0.3,
         }
         request = urllib.request.Request(
-            "https://api.openai.com/v1/chat/completions",
+            self.base_url,
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Authorization": f"Bearer {self.api_key}",
@@ -75,11 +77,11 @@ class LlmClient:
                 data = json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as error:
             detail = error.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"OpenAI LLM request failed: HTTP {error.code}: {detail}") from error
+            raise RuntimeError(f"Gemini LLM request failed: HTTP {error.code}: {detail}") from error
 
         choices = data.get("choices", [])
         if not choices:
-            raise RuntimeError(f"OpenAI LLM returned no choices: {data}")
+            raise RuntimeError(f"Gemini LLM returned no choices: {data}")
 
         return str(choices[0]["message"]["content"]).strip()
 
