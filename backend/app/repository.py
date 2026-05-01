@@ -259,7 +259,7 @@ class MongoRepository(JsonRepository):
         super().__init__(data_file)
         from pymongo import MongoClient
 
-        self.client = MongoClient(mongodb_uri)
+        self.client = MongoClient(mongodb_uri, connectTimeoutMS=5000, serverSelectionTimeoutMS=5000)
         self.database = self.client[database_name]
 
     def get_site(self) -> dict[str, Any]:
@@ -272,23 +272,37 @@ class MongoRepository(JsonRepository):
         return self._get_content_doc("theme_definitions") or super().get_theme_definitions()
 
     def list_chapters(self) -> list[dict[str, Any]]:
-        chapters = list(self.database.chapters.find({}, {"_id": 0}).sort("id", 1))
-        return chapters or super().list_chapters()
+        try:
+            chapters = list(self.database.chapters.find({}, {"_id": 0}).sort("id", 1))
+            return chapters if chapters else super().list_chapters()
+        except Exception as e:
+            print(f"MongoDB list_chapters failed (falling back to JSON): {e}")
+            return super().list_chapters()
 
     def get_chapter(self, chapter_id: int) -> dict[str, Any] | None:
-        chapter = self.database.chapters.find_one({"id": chapter_id}, {"_id": 0})
-        if not chapter:
+        try:
+            chapter = self.database.chapters.find_one({"id": chapter_id}, {"_id": 0})
+            if not chapter:
+                return super().get_chapter(chapter_id)
+            chapter["verses"] = list(self.database.verses.find({"chapter_id": chapter_id}, {"_id": 0}).sort("verse_number", 1))
+            return chapter
+        except Exception:
             return super().get_chapter(chapter_id)
-        chapter["verses"] = list(self.database.verses.find({"chapter_id": chapter_id}, {"_id": 0}).sort("verse_number", 1))
-        return chapter
 
     def get_verse(self, chapter_id: int, verse_number: int) -> dict[str, Any] | None:
-        verse = self.database.verses.find_one({"chapter_id": chapter_id, "verse_number": verse_number}, {"_id": 0})
-        return verse or super().get_verse(chapter_id, verse_number)
+        try:
+            verse = self.database.verses.find_one({"chapter_id": chapter_id, "verse_number": verse_number}, {"_id": 0})
+            return verse or super().get_verse(chapter_id, verse_number)
+        except Exception:
+            return super().get_verse(chapter_id, verse_number)
 
     def list_verses(self) -> list[dict[str, Any]]:
-        verses = list(self.database.verses.find({}, {"_id": 0}).sort([("chapter_id", 1), ("verse_number", 1)]))
-        return verses or super().list_verses()
+        try:
+            verses = list(self.database.verses.find({}, {"_id": 0}).sort([("chapter_id", 1), ("verse_number", 1)]))
+            return verses if verses else super().list_verses()
+        except Exception as e:
+            print(f"MongoDB list_verses failed (falling back to JSON): {e}")
+            return super().list_verses()
 
     def vector_search(
         self,
