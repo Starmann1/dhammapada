@@ -27,10 +27,9 @@ This document provides a comprehensive list of all open-source libraries, framew
 *   **SVG (Scalable Vector Graphics)**: All icons (Search, Moon/Sun, Navigation arrows) are custom-coded SVGs for infinite sharpness and zero file size.
 
 ### 3. Data & Scholarly Resources (The "Source of Truth")
-*   **SuttaCentral (sc-data)**: The definitive source for the **Pali Root Text** and the modern English translations by **Bhikkhu Sujato**.
-*   **Ancient Buddhist Texts**: Used for the detailed **Word-by-Word Interlinear Meanings** (researched by Ānandajoti Bhikkhu).
-*   **Tipitaka.net**: The source for the traditional **Dhammapada Atthakatha** (Stories and Commentaries).
-*   **Node.js (for Scripts)**: Used to run the data enrichment scripts (like `enrich-data.mjs`) that combined the Pali text with the stories and themes into the final 3.2MB JSON dataset.
+*   **[SuttaCentral](https://suttacentral.net)**: The definitive source for the **Pali Root Text** and the modern English translations by **Bhikkhu Sujato**.
+*   **[Ancient Buddhist Texts](https://ancient-buddhist-texts.net/English-Texts/Dhamma-Verses-Comm/Dhamma-Verses-Comm.pdf)**: Data for interlinear word-by-word meanings and commentary notes was meticulously extracted from the scholarly PDF edition of *Dhammapada: Annotated Pali Text and Translation* (by Ānandajoti Bhikkhu).
+*   **[Tipitaka.net](https://www.tipitaka.net)**: The source for the traditional **Dhammapada Atthakatha** (Stories and Commentaries).
 
 ### 4. Infrastructure & AI Providers
 *   **MongoDB Atlas**: The cloud database that hosts the verses and provides the **HNSW (Hierarchical Navigable Small World)** vector index for semantic search.
@@ -42,3 +41,4 @@ This document provides a comprehensive list of all open-source libraries, framew
 *   **VS Code**: The primary IDE used for development.
 *   **Postman / Thunder Client**: Used for testing the API endpoints during the RAG implementation.
 *   **Python Venv**: Used to isolate the backend environment and keep dependencies clean.
+*   **Node.js**: Used to run data enrichment and preprocessing scripts (like `enrich-data.mjs`) to compile the final JSON dataset.
