@@ -83,7 +83,18 @@ def verse(chapter_id: int, verse_number: int) -> Verse:
 
 @app.get("/api/search", response_model=list[SearchResult])
 def search(q: str = Query(..., min_length=1), limit: int = Query(20, ge=1, le=50)) -> list[SearchResult]:
-    return [SearchResult.model_validate(item) for item in repository.search(q, limit)]
+    results = rag.search(q, limit)
+    return [
+        SearchResult(
+            verse_id=result.verse["id"],
+            chapter_id=result.verse["chapter_id"],
+            chapter_name=result.verse["chapter_name"],
+            verse_number=result.verse["verse_number"],
+            excerpt=result.excerpt,
+            score=result.hybrid_score,
+        )
+        for result in results
+    ]
 
 
 @app.get("/api/rag/search", response_model=list[SearchResult])

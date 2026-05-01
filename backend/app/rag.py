@@ -97,7 +97,7 @@ class StructuredHybridRag:
             return []
 
         direct = self._lookup_direct_verse(query)
-        if direct:
+        if direct and re.match(r'^[\d\s:.-]+$', normalized_query):
             return [
                 RetrievalResult(
                     verse=direct,

@@ -111,6 +111,10 @@ class JsonRepository(BaseRepository):
         if not lowered:
             return []
 
+        # If it's a direct reference search (only digits and separators), return only that result
+        if direct and re.match(r'^[\d\s:.-]+$', lowered):
+            return [self._build_search_result(direct, query, direct=direct)]
+
         results: list[dict[str, Any]] = []
         for verse in self.verse_by_id.values():
             if not self._query_matches_verse(verse, lowered) and (not direct or direct["id"] != verse["id"]):
@@ -393,6 +397,10 @@ class MongoRepository(JsonRepository):
             return []
 
         direct = self._lookup_direct_verse(query)
+        # If it's a direct reference search (only digits and separators), return only that result
+        if direct and re.match(r'^[\d\s:.-]+$', lowered):
+            return [self._build_search_result(direct, query, direct=direct)]
+
         results_by_id: dict[str, dict[str, Any]] = {}
         if direct:
             self._store_search_result(results_by_id, self._build_search_result(direct, query, direct=direct))
