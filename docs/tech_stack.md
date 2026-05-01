@@ -28,7 +28,7 @@ This document provides a comprehensive list of all open-source libraries, framew
 
 ### 3. Data & Scholarly Resources (The "Source of Truth")
 *   **[SuttaCentral](https://suttacentral.net)**: The definitive source for the **Pali Root Text** and the modern English translations by **Bhikkhu Sujato**.
-*   **[Ancient Buddhist Texts](https://ancient-buddhist-texts.net/English-Texts/Dhamma-Verses-Comm/Dhamma-Verses-Comm.pdf)**: Data for interlinear word-by-word meanings and commentary notes was meticulously extracted from the scholarly PDF edition of *Dhammapada: Annotated Pali Text and Translation* (by Ānandajoti Bhikkhu).
+*   **[Ancient Buddhist Texts](https://ancient-buddhist-texts.net/Texts-and-Translations/Dhammapada/index.htm)**: Data for interlinear word-by-word meanings and commentary notes was meticulously sourced from the scholarly edition of *Dhammapada: Annotated Pali Text and Translation* (by Ānandajoti Bhikkhu).
 *   **[Tipitaka.net](https://www.tipitaka.net)**: The source for the traditional **Dhammapada Atthakatha** (Stories and Commentaries).
 
 ### 4. Infrastructure & AI Providers
