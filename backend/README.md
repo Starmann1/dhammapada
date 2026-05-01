@@ -1,85 +1,88 @@
 # Dhammapada FastAPI Service
 
-This service exposes a read-only API for the Dhammapada frontend and a future MongoDB-backed content platform.
+This service exposes a read-only API for the Dhammapada platform, providing advanced search and an AI-powered study assistant.
 
 ## Run Locally
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
+All commands below should be run from the **Project Root** directory.
 
+1. **Set up Environment**:
+   Create and activate a virtual environment, then install dependencies:
    ```bash
    pip install -r backend/requirements.txt
    ```
 
-3. Start the API:
+2. **Configuration**:
+   Ensure your `backend/.env` file is configured. By default, the project is set to use **Groq** for AI answers and **Local Hashing** for embeddings to ensure zero-cost development.
 
+3. **Start the API**:
    ```bash
-   uvicorn backend.app.main:app --reload
+   python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
    ```
 
-The API works immediately against `data/dhammapada.json` without MongoDB.
+The API works immediately against `data/dhammapada.json`. If MongoDB is configured, it will automatically prefer cloud data.
 
 ## Structured Hybrid RAG Chatbot
 
-The RAG implementation uses MongoDB Atlas Vector Search when MongoDB contains verse embeddings and the configured vector index is available. It falls back to the in-memory local retriever when Vector Search is not configured, so local development still works.
+The RAG (Retrieval-Augmented Generation) engine provides context-aware answers grounded in the scriptures.
 
-### Endpoints
+### Key Endpoints
 
+#### 1. Hybrid Search
 ```http
-GET /api/rag/search?q=hatred&limit=5
+GET /api/search?q=mindfulness&limit=5
 ```
+Returns verse-level matches using a hybrid of Vector Search and Lexical Search. Note: Specific references like `18:2` will return only that single verse.
 
-Returns verse-level retrieval matches using hybrid scoring. The response shape matches the existing search result model.
-
+#### 2. Dhamma AI Chat
 ```http
 POST /api/chat
 Content-Type: application/json
 
 {
-  "question": "How should I deal with anger?",
+  "question": "What does Buddha say about anger?",
   "limit": 5
 }
 ```
-
-Returns a grounded answer with verse citations, retrieval scores, themes, slugs, translations, excerpts, and source references.
-
-When `LLM_PROVIDER=openai` and `OPENAI_API_KEY` are set, `/api/chat` sends the retrieved verse context to the OpenAI Responses API for a natural-language answer. Without those variables, it returns a deterministic citation-grounded summary.
+Returns a grounded answer with citations. The AI is restricted to only use the retrieved Dhammapada verses as its source of truth.
 
 ### Retrieval Strategy
 
-- Each Dhammapada verse is indexed as a complete structured record rather than arbitrary text chunks.
-- Retrieval combines MongoDB Atlas Vector Search with MongoDB text search.
-- Local development falls back to lexical matching with local TF-IDF cosine similarity.
-- Ranking uses a weighted hybrid score from lexical and semantic signals.
-- Direct verse references such as `Dhammapada 1:1` resolve to that verse.
-- Answers are citation-grounded and generated from retrieved verse translations and commentary.
+- **Hybrid Scoring**: Combines MongoDB Atlas Vector Search (Semantic) with Text Search (Lexical) using a weighted formula.
+- **Local Fallback**: If MongoDB is unreachable, the system automatically falls back to a local TF-IDF vectorizer and the `dhammapada.json` file.
+- **Direct Lookup**: Verse references (e.g., `1:1`) bypass the AI search for 100% precision.
 
-### Seeding Embeddings
+### Seeding Data
 
-The seed script stores `rag_text`, `chapter_local_number`, `embedding_provider`, and `embedding` on each verse document:
+To populate your MongoDB Atlas cluster with verses and embeddings:
 
 ```bash
 python backend/seed_mongodb.py
 ```
 
-For immediate development, use deterministic local embeddings:
+### AI Configuration (.env)
+
+The system is optimized for the following setup:
 
 ```env
+# AI Intelligence (Groq)
+LLM_PROVIDER=groq
+LLM_MODEL=llama-3.3-70b-versatile
+GROQ_API_KEY=your_key
+
+# Search (Local Hashing - No API Key required)
 EMBEDDING_PROVIDER=local
 EMBEDDING_DIMENSIONS=384
 ```
 
-For production-quality semantic retrieval, use OpenAI embeddings and create the MongoDB Atlas Vector Search index with the same dimensions:
+To upgrade to **OpenAI** for production-grade semantic retrieval:
+1. Set `EMBEDDING_PROVIDER=openai` and `OPENAI_API_KEY`.
+2. Update `EMBEDDING_DIMENSIONS=1536`.
+3. Re-run the seed script and update your Atlas Vector Search index.
 
-```env
-EMBEDDING_PROVIDER=openai
-EMBEDDING_MODEL=text-embedding-3-small
-EMBEDDING_DIMENSIONS=1536
-OPENAI_API_KEY=your_key
-MONGODB_VECTOR_SEARCH_INDEX=verse_vector_index
-```
+## MongoDB Vector Index
 
-Example Atlas Vector Search index:
+If using MongoDB Atlas, create a search index named `verse_vector_index` with the following configuration:
 
 ```json
 {
@@ -102,32 +105,4 @@ Example Atlas Vector Search index:
 }
 ```
 
-Set `numDimensions` to `1536` when using the OpenAI configuration above.
-
-### LLM Answer Generation
-
-Enable the LLM layer after MongoDB retrieval is working:
-
-```env
-LLM_PROVIDER=openai
-LLM_MODEL=gpt-4.1-mini
-OPENAI_API_KEY=your_key
-```
-
-Then restart FastAPI:
-
-```bash
-python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
-```
-
-Check `/api/rag/status`; `llm_enabled` should be `true`. The LLM prompt only treats retrieved Dhammapada passages as authoritative. Comparative questions, such as comparisons with Advaita Vedanta, are allowed only in a clearly separated comparative note.
-
-## MongoDB
-
-Set environment variables from `backend/.env.example`, then seed the database:
-
-```bash
-python backend/seed_mongodb.py
-```
-
-When `MONGODB_URI` is present, the API will prefer MongoDB and fall back to the JSON dataset only if a document is missing.
+*Note: Change `numDimensions` to `1536` if switching to OpenAI embeddings.*
