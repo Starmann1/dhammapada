@@ -1,71 +1,82 @@
 # The Dhammapada
 
-A static website for reading, studying, and practicing the eternal wisdom of the Buddha's teachings from [The Dhammapada](https://en.wikipedia.org/wiki/Dhammapada). 
+A modern, full-featured platform for reading, studying, and practicing the eternal wisdom of the Buddha's teachings from [The Dhammapada](https://en.wikipedia.org/wiki/Dhammapada).
 
-This project presents the collection of sayings in a clean, modern, and accessible web interface, complete with original Pali text, English translations, and supplementary stories and commentary.
-
-> **Note**: This is an early-stage side project. More features and content will be added in the future.
+This project presents the collection of sayings in a clean, accessible web interface, complete with original Pali text, English translations, supplementary stories, and an AI-powered study assistant.
 
 ## ✨ Features
 
-- **Read and Browse**: Navigate through all 26 chapters of The Dhammapada.
-- **Detailed Verses**: View individual verses featuring:
-  - Original Pali text
-  - English translations
-  - Explanatory commentaries (expandable)
-  - Related Buddhist stories (expandable)
-- **Full-Text Search (Ctrl+K)**: Instantly search through Pali text, translations, and commentaries across all verses.
-- **Reading aids**: 
-  - Dynamic reading progress bar
-  - Smooth scroll-to-top functionality
-- **Accessible Design**: 
-  - Dark mode support with persistent local storage
-  - Fully responsive grid layout for mobile and desktop reading
-  
+- **Read and Browse**: Navigate through all 26 chapters with a focus on typography and readability.
+- **Dhamma AI Chatbot**: A context-aware study assistant that can answer questions based on the scriptures using **Structured Hybrid RAG**.
+- **Detailed Verses**: Deep-dive into individual verses with:
+  - Original Pali text & Transliteration
+  - English translations & Word-by-word meanings
+  - Explanatory commentaries and historical stories
+- **Universal Search (Ctrl+K)**: Semantic and keyword search across all verses.
+- **Reading Aids**: Dynamic progress tracking, "Verse of the Day", and popular verse highlights.
+- **Modern UI**: Dark mode support, responsive design, and smooth transitions.
+
+## 🤖 Dhamma AI: Structured Hybrid RAG
+
+The chatbot utilizes a sophisticated **Structured Hybrid RAG (Retrieval-Augmented Generation)** engine:
+- **Hybrid Retrieval**: Combines Vector Search (Semantic) with TF-IDF (Lexical) for maximum precision.
+- **Context-Aware**: The AI understands the specific chapter/verse you are currently reading.
+- **Canonical Grounding**: Responses are grounded in the actual text, commentaries, and background stories of the Dhammapada.
+- **Flexible Backend**: Supports MongoDB Atlas Vector Search or local in-memory indexing.
+
 ## 🛠️ Tech Stack
 
-This project is built using standard foundational web technologies—no build steps or heavy frameworks required:
-- **HTML5**: Semantic document structure
-- **CSS3**: Custom vanilla CSS with CSS variables for theming and dark mode
-- **JavaScript (ES6+)**: Vanilla scripting for DOM manipulation, search logic, and UI interactions
-- **JSON**: All chapter and verse data is served statically from `data/dhammapada.json`
+### Frontend
+- **HTML5 & Vanilla CSS**: Performance-first, framework-free UI.
+- **JavaScript (ES6+)**: Reactive DOM updates and client-side logic.
+- **Google Fonts**: Inter & Outfit for premium typography.
+
+### Backend (AI Engine)
+- **FastAPI**: High-performance Python API.
+- **MongoDB Atlas**: Vector database for semantic search.
+- **LLM Integration**: Groq (Llama 3) or OpenAI for intelligent responses.
+- **Embeddings**: Local Hashing-based vectors or OpenAI embeddings.
 
 ## 📁 Project Structure
 
 ```text
-├── assets/
-│   ├── css/          # Stylesheets (styles.css)
-│   ├── images/       # Static image assets (icons, heroes)
-│   └── js/           # JavaScript logic (script.js)
-├── data/
-│   └── dhammapada.json # The core dataset containing chapters and verses
-├── pages/
-│   ├── chapter.html  # Dynamic template for viewing a chapter's verses
-│   └── verse.html    # Dynamic template for deep-diving into a single verse
-├── index.html        # The main landing and chapter exploration page
-└── README.md         # This file
+├── assets/             # CSS, JS, and image assets
+├── backend/            # FastAPI RAG application
+│   └── app/            # RAG logic, embeddings, and repository patterns
+├── data/               # Dhammapada dataset (JSON)
+├── docs/               # Technical documentation and reports
+├── pages/              # Chapter and Verse detail templates
+├── index.html          # Main landing page
+└── requirements.txt    # Python dependencies
 ```
 
-## 🚀 Local Development
+## 🚀 Getting Started
 
-Since this project uses no build tools and fetches JSON data dynamically via JavaScript `fetch()`, you must run it through a local web server (to avoid CORS restrictions).
+### 1. Frontend Only (Static)
+Simply run a local server in the root directory:
+```bash
+python -m http.server 8000
+```
 
-1. Clone the repository:
+### 2. Full Stack (with Dhamma AI)
+1. **Set up Python environment**:
    ```bash
-   git clone https://github.com/Starmann1/dhammapada-static.git
-   cd dhammapada-static
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # or venv\Scripts\activate on Windows
+   pip install -r requirements.txt
    ```
-
-2. Start a local server. Here are a few ways to do it:
-   - **Using VS Code**: Install the "Live Server" extension and click "Go Live" at the bottom right.
-   - **Using Python**: Run `python -m http.server 8000` (or `python3`) and open `http://localhost:8000`.
-   - **Using Node.js**: Run `npx serve .`
+2. **Configure Environment**: Create a `.env` file in `backend/` with your API keys (GROQ_API_KEY, etc.).
+3. **Run the API**:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
 ## 📝 License
 
-Buddhist scriptures are in the public domain. The website codebase is provided as-is entirely for educational purposes.
+Buddhist scriptures are in the public domain. The website codebase is provided for educational and practice purposes.
 
 ---
 
-**Status**: 🚧 Work in Progress  
-*May all beings benefit from the Buddha's teachings. 🙏*
+**Status**: 🚀 Active Development  
+*May all beings find peace through the Dhamma. 🙏*
