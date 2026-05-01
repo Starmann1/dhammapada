@@ -35,10 +35,10 @@ A specialized RegEx layer detects patterns like `1:1`, `DHP 100`, or `Verse 5`. 
 ## 4. Hybrid Scoring Logic
 Results are merged using a weighted hybrid score:
 ```python
-hybrid_score = (0.55 * Lexical_Signal) + (0.45 * Semantic_Signal)
+hybrid_score = (0.60 * Semantic_Signal) + (0.35 * Lexical_Signal) + (0.05 * Heuristic_Boost)
 ```
-- **Normalization**: Lexical scores (often unbounded) are capped and normalized against a reference maximum to prevent keyword-stuffing from overwhelming semantic relevance.
-- **Popularity Boost**: Verses marked as `is_popular` receive a small heuristic boost to prioritize well-known teachings.
+- **Normalization**: Lexical scores are normalized against the maximum score in the result set to ensure they are comparable with the 0.0-1.0 range of semantic similarity.
+- **Popularity Boost**: Verses marked as `is_popular` receive a small heuristic boost (0.05) to prioritize well-known teachings in the final ranking.
 
 ---
 

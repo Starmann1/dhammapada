@@ -1,49 +1,40 @@
-# Dhammapada Static Website 
+# Project Summary: The Dhammapada Study Companion
 
-## 🎯 Current Status
+## 🎯 Current Status (Version 1.0)
 
-This is an early-stage side project with basic functionality:
-- Homepage with chapter listing
-- Chapter and verse detail pages
-- Dark mode
-- Basic responsive design
+This project has evolved from a static reading site into a robust, AI-powered study platform.
 
-## 🚧 Development Notes
+### Core Features
+- **Full Verse Collection**: 423 verses with Pali text, modern English translations, and traditional stories.
+- **Dhamma AI Chat**: A side-panel assistant that provides context-aware answers grounded in the scriptures.
+- **Hybrid Vector Search**: Advanced thematic search that understands the "meaning" of your query, not just the keywords.
+- **Dynamic Theming**: Premium Dark Mode and Light Mode with persistent state.
+- **Resilient Architecture**: Automatic fallback to local JSON data if the cloud database is unreachable.
 
-### What's Working
-- ✅ Static HTML/CSS/JS structure
-- ✅ JSON data loading
-- ✅ Basic navigation
-- ✅ Dark mode toggle
-
-### To Be Developed
-- 🔲 Complete verse collection
-- 🔲 Advanced search
-- 🔲 Additional features (TBD)
-
-
-## 📁 Simple Structure
+## 🏗️ Technical Structure
 
 ```
-dhammapada-static/
-├── index.html
-├── pages/
-│   ├── chapter.html
-│   └── verse.html
-├── assets/
-│   ├── css/styles.css
-│   ├── js/script.js
-│   └── images/
-└── data/
-    └── dhammapada.json
+dhammapada/
+├── backend/            # FastAPI + Python RAG Engine
+│   ├── app/            # Core logic (RAG, Search, Embeddings)
+│   └── seed_mongodb.py # Data ingestion script
+├── assets/             # Frontend logic (Vanilla JS/CSS)
+│   ├── js/script.js    # Main application logic
+│   └── css/styles.css  # Custom design system
+├── data/               # Verified scriptural data (JSON)
+├── docs/               # Technical reports and tech stack
+└── index.html          # Main application entry point
 ```
 
-## 🔮 Future Vision
+## 🚧 Development Milestones
 
-This project will evolve over time with additional features and complete content.
+- ✅ **2025 Q4**: Project started as a static HTML/CSS layout.
+- ✅ **2026 Q1**: Integrated full Dhammapada dataset with stories and themes.
+- ✅ **2026 Q2**: Launched **Dhamma AI** (RAG architecture) and MongoDB Vector Search.
+- ✅ **Current**: Professionalizing documentation and finalizing the Version 1.0 Roadmap.
 
 ---
 
-**Started**: December 2025  
-**Status**: 🚧 In Development  
-**Purpose**: Personal learning project & sharing Buddhist teachings
+**Last Updated**: April 30, 2026  
+**Version**: 1.0.0 (Production Ready)  
+**Goal**: Providing the most accurate and immersive Dhammapada experience online.
