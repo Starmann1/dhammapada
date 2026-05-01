@@ -72,9 +72,40 @@ python -m http.server 8000
    uvicorn app.main:app --reload
    ```
 
-## License
+## Roadmap & Future Scope
 
-Buddhist scriptures are in the public domain. The website codebase is provided for educational and practice purposes.
+The goal is to establish this platform as the definitive Dhammapada study companion. Here is our path forward, ranked from foundational improvements to long-term complex visions:
+
+### Phase 1: Near-Term (Foundational Enhancements)
+- **Contemplative Exercises**: Add an "Apply to Life" section for every verse, where the AI generates a specific daily task based on the teaching.
+- **Multi-Translation Comparison**: Allow users to toggle between legendary translations (e.g., Buddharakkhita, Sujato, and Thanissaro Bhikkhu) for better perspective.
+- **Dharma Journaling**: A built-in private space for users to record reflections, with AI suggesting relevant verses based on their entries.
+- **Source Attribution UI**: Precise highlighting and direct linking for every sentence the AI says, pointing to the exact Pali word or Commentary line it came from.
+
+### Phase 2: Mid-Term (Interactive & Community Features)
+- **Word-by-Word Interlinear Analysis**: Clickable Pali words that reveal their root, grammatical case, and full scholarly dictionary definitions.
+- **Socratic AI Mode**: A specialized "Teacher" persona that guides users through self-reflection and questioning rather than just providing direct answers.
+- **Spaced Repetition (Anki-style)**: A built-in learning system to help users systematically memorize their favorite verses and Pali terms.
+- **Global Reflection Stream**: A public (anonymous) feed where users can see what others are learning and share their own insights.
+- **Personalized Study Paths**: The AI tracks user progress and suggests new chapters based on their interests and past questions.
+- **Daily Contemplation**: Push notifications for personalized "Micro-Meditations" based on verses relevant to the user's current life situation.
+
+### Phase 3: Long-Term (The Global Vision)
+- **Audio Chanting Integration**: High-quality Pali audio recordings synced with the text to help users learn the rhythm and pronunciation of the verses.
+- **Thematic Knowledge Graph**: An interactive, multi-dimensional visual map showing how different chapters and concepts (Mindfulness, Craving, etc.) connect across the text.
+- **Agentic RAG Architecture**: Moving to multi-step reasoning (searching root verses, then commentaries) and implementing a "Critic" agent for self-correction.
+- **Scholarly Verification (Monk-in-the-Loop)**: A platform for verified monks and scholars to "upvote" or "certify" AI-generated explanations.
+- **Cross-Lingual Semantic Search**: Supporting global users with multilingual embeddings and auto-translation of AI explanations.
+- **Full Canon Scale-up**: Expanding the RAG architecture to support the entire **Tri-Pitaka** (Pali Canon) including lineage-specific contexts (Theravada, Zen, etc.).
+
+## Acknowledgements
+
+This project would not be possible without the incredible work of the global Buddhist scholarly community. We acknowledge the following primary sources:
+
+- **SuttaCentral**: For providing the verified Pali root text and modern English translations by **Bhikkhu Sujato**.
+- **Ancient Buddhist Texts**: For the detailed interlinear phrase meanings by **Ānandajoti Bhikkhu**.
+- **Tipitaka.net**: For hosting the traditional **Dhammapada Atthakatha** (Stories and Commentaries).
+- **The Open Source Community**: For the foundational frameworks and libraries that power our platform, including **FastAPI**, **Uvicorn**, and various Python ecosystem tools. A detailed list of all technologies used can be found in our [Technology Stack](docs/tech_stack.md) document.
 
 ---
 
