@@ -1,6 +1,7 @@
 # Technology Stack & Resources
 
 This document provides a comprehensive list of all open-source libraries, frameworks, resources, and tools used in the development of the Dhammapada platform.
+
 (AS OF APRIL 30th, 2026 - Version 1.0)
 ---
 
