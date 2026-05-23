@@ -96,7 +96,7 @@ The goal is to establish this platform as the definitive Dhammapada study compan
 - **Agentic RAG Architecture**: Moving to multi-step reasoning (searching root verses, then commentaries) and implementing a "Critic" agent for self-correction.
 - **Scholarly Verification (Monk-in-the-Loop)**: A platform for verified monks and scholars to "upvote" or "certify" AI-generated explanations.
 - **Cross-Lingual Semantic Search**: Supporting global users with multilingual embeddings and auto-translation of AI explanations.
-- **Full Canon Scale-up**: Expanding the RAG architecture to support the entire **Tri-Pitaka** (Pali Canon) including lineage-specific contexts (Theravada, Zen, etc.).
+- **Comparative Study Expansion**: Extending the Dhammapada-focused experience with comparative study across adjacent philosophical traditions such as Zen, Daoism, and Advaita, while keeping the Dhammapada as the primary source and interpretive anchor.
 
 ## Acknowledgements
 
@@ -111,3 +111,4 @@ This project would not be possible without the incredible work of the global Bud
 
 **Status**: Active Development  
 *May all beings find peace through the Dhamma.*
+
