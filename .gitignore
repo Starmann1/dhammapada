@@ -22,3 +22,9 @@ Thumbs.db
 backup/
 data/tipitaka-cache/
 FOLDER_STRUCTURE.md
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
