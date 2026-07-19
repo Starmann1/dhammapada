@@ -3,6 +3,14 @@
    Uses the same CSS variables and fonts as the main app
    ============================================================ */
 
+/* Prevent page/body bounce and scroll on mobile */
+body {
+    overflow: hidden;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+}
+
 /* Full-viewport layout */
 .dai-layout {
     display: flex;
