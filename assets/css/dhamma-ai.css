@@ -71,15 +71,18 @@
     box-shadow: 0 3px 12px rgba(228, 178, 61, 0.3);
 }
 
-.dai-new-chat-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(228, 178, 61, 0.45);
+@media (hover: hover) {
+    .dai-new-chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(228, 178, 61, 0.45);
+    }
 }
 
 /* Sessions list */
 .dai-sessions-list {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0.5rem 0.75rem;
 }
 
@@ -103,8 +106,10 @@
     margin-bottom: 0.2rem;
 }
 
-.dai-session-item:hover {
-    background: rgba(228, 178, 61, 0.08);
+@media (hover: hover) {
+    .dai-session-item:hover {
+        background: rgba(228, 178, 61, 0.08);
+    }
 }
 
 .dai-session-item.active {
@@ -140,13 +145,17 @@
     line-height: 1;
 }
 
-.dai-session-item:hover .dai-session-delete {
-    opacity: 1;
+@media (hover: hover) {
+    .dai-session-item:hover .dai-session-delete {
+        opacity: 1;
+    }
 }
 
-.dai-session-delete:hover {
-    color: #e53e3e;
-    background: rgba(229, 62, 62, 0.1);
+@media (hover: hover) {
+    .dai-session-delete:hover {
+        color: #e53e3e;
+        background: rgba(229, 62, 62, 0.1);
+    }
 }
 
 /* Sidebar footer */
@@ -166,8 +175,10 @@
     transition: color 0.2s;
 }
 
-.dai-footer-link:hover {
-    color: var(--saffron-500);
+@media (hover: hover) {
+    .dai-footer-link:hover {
+        color: var(--saffron-500);
+    }
 }
 
 .dai-footer-note {
@@ -208,8 +219,10 @@
     transition: color 0.2s;
 }
 
-.dai-menu-btn:hover {
-    color: var(--saffron-500);
+@media (hover: hover) {
+    .dai-menu-btn:hover {
+        color: var(--saffron-500);
+    }
 }
 
 .dai-topbar-title {
@@ -232,6 +245,7 @@
 .dai-messages-area {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 1.5rem 1rem;
     display: flex;
     flex-direction: column;
@@ -298,11 +312,13 @@
     transition: all 0.25s ease;
 }
 
-.dai-suggestion:hover {
-    border-color: var(--saffron-400);
-    background: rgba(228, 178, 61, 0.08);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+@media (hover: hover) {
+    .dai-suggestion:hover {
+        border-color: var(--saffron-400);
+        background: rgba(228, 178, 61, 0.08);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
 }
 
 /* ── Chat Messages ────────────────────────────────────────── */
@@ -411,10 +427,12 @@
     font-size: 0.85rem;
 }
 
-.dai-citation:hover {
-    background: rgba(228, 178, 61, 0.14);
-    border-color: var(--saffron-400);
-    transform: translateX(3px);
+@media (hover: hover) {
+    .dai-citation:hover {
+        background: rgba(228, 178, 61, 0.14);
+        border-color: var(--saffron-400);
+        transform: translateX(3px);
+    }
 }
 
 .dai-citation span {
@@ -488,6 +506,7 @@
     line-height: 1.55;
     max-height: 140px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .dai-textarea::placeholder {
@@ -510,9 +529,11 @@
     box-shadow: 0 2px 8px rgba(228, 178, 61, 0.35);
 }
 
-.dai-send-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 14px rgba(228, 178, 61, 0.5);
+@media (hover: hover) {
+    .dai-send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 14px rgba(228, 178, 61, 0.5);
+    }
 }
 
 .dai-send-btn:disabled {
@@ -568,5 +589,16 @@
 
     .dai-sidebar-overlay.visible {
         display: block;
+    }
+}
+
+/* ============================================================
+   Cross-Device Compatibility Fixes
+   ============================================================ */
+
+/* GAP-01: Prevent iOS auto-zoom on inputs (font-size must be >= 16px) */
+@media (max-width: 1024px) {
+    .dai-textarea {
+        font-size: 16px;
     }
 }

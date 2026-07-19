@@ -25,6 +25,14 @@ const state = {
   searchRequestId: 0
 };
 
+function lockBodyScroll() {
+  document.body.style.overflow = 'hidden';
+}
+
+function unlockBodyScroll() {
+  document.body.style.overflow = '';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   initDarkMode();
   initScrollFeatures();
@@ -1220,12 +1228,14 @@ function initMiniChat() {
     overlay.classList.add('visible');
     input.focus();
     navBtn.setAttribute('aria-expanded', 'true');
+    lockBodyScroll();
   }
 
   function closePanel() {
     panel.classList.remove('open');
     overlay.classList.remove('visible');
     navBtn.setAttribute('aria-expanded', 'false');
+    unlockBodyScroll();
   }
 
   navBtn.addEventListener('click', (e) => {
@@ -1366,27 +1376,48 @@ function initMiniChat() {
   let startX = 0;
   let startWidth = 0;
 
-  resizeBar.addEventListener('mousedown', (e) => {
+  function startResize(clientX) {
     isResizing = true;
-    startX = e.clientX;
+    startX = clientX;
     startWidth = panel.offsetWidth;
     document.body.style.userSelect = 'none';
     document.body.style.cursor = 'ew-resize';
-  });
+  }
 
-  document.addEventListener('mousemove', (e) => {
+  function moveResize(clientX) {
     if (!isResizing) return;
-    const delta = startX - e.clientX;
+    const delta = startX - clientX;
     const newWidth = Math.min(Math.max(startWidth + delta, 280), 680);
     panel.style.width = newWidth + 'px';
-  });
+  }
 
-  document.addEventListener('mouseup', () => {
+  function endResize() {
     if (!isResizing) return;
     isResizing = false;
     document.body.style.userSelect = '';
     document.body.style.cursor = '';
-  });
+  }
+
+  // Mouse events
+  resizeBar.addEventListener('mousedown', (e) => startResize(e.clientX));
+  document.addEventListener('mousemove', (e) => moveResize(e.clientX));
+  document.addEventListener('mouseup', endResize);
+
+  // Touch events for tablet support
+  resizeBar.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) startResize(e.touches[0].clientX);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (isResizing && e.touches.length === 1) moveResize(e.touches[0].clientX);
+  }, { passive: true });
+  document.addEventListener('touchend', endResize);
+
+  // Hide resize handle on small screens where panel is full-width
+  function updateResizeVisibility() {
+    resizeBar.style.display = window.innerWidth <= 600 ? 'none' : '';
+  }
+  updateResizeVisibility();
+  window.addEventListener('resize', updateResizeVisibility);
 }
 
 
@@ -1404,6 +1435,19 @@ function openSearch(initialValue) {
   searchModalContent.dataset.mode = 'search';
   searchInputWrapper.hidden = false;
   searchModal.classList.add('active');
+  lockBodyScroll();
+  
+  // Inject close button for mobile if not already present
+  if (!searchModalContent.querySelector('.search-close-btn')) {
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'search-close-btn';
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close search');
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeSearch);
+    searchModalContent.insertBefore(closeBtn, searchModalContent.firstChild);
+  }
+  
   searchInput.value = initialValue || '';
   searchInput.focus();
   void performSearch(searchInput.value);
@@ -1425,6 +1469,19 @@ function openThemeBrowser() {
   searchInputWrapper.hidden = true;
   searchInput.value = '';
   searchModal.classList.add('active');
+  lockBodyScroll();
+  
+  // Inject close button for mobile if not already present
+  if (!searchModalContent.querySelector('.search-close-btn')) {
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'search-close-btn';
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close search');
+    closeBtn.textContent = '✕';
+    closeBtn.addEventListener('click', closeSearch);
+    searchModalContent.insertBefore(closeBtn, searchModalContent.firstChild);
+  }
+  
   renderThemeBrowser(searchResults, themes);
 }
 
@@ -1447,6 +1504,7 @@ function renderThemeBrowser(container, themes) {
 }
 
 function closeSearch() {
+  unlockBodyScroll();
   const searchModal = document.getElementById('searchModal');
   if (searchModal) {
     searchModal.classList.remove('active');

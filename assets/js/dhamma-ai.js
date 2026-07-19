@@ -81,10 +81,12 @@ darkToggle.addEventListener('click', toggleDarkMode);
 function openSidebar() {
     sidebar.classList.add('open');
     overlay.classList.add('visible');
+    document.body.style.overflow = 'hidden';
 }
 function closeSidebar() {
     sidebar.classList.remove('open');
     overlay.classList.remove('visible');
+    document.body.style.overflow = '';
 }
 
 menuBtn.addEventListener('click', openSidebar);
