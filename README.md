@@ -63,7 +63,7 @@ python -m http.server 8000
    ```bash
    cd backend
    python -m venv venv
-   source venv/bin/activate  # or venv\Scripts\activate on Windows
+   source venv/bin/activate  # or venv\\Scripts\\activate on Windows
    pip install -r requirements.txt
    ```
 2. **Configure Environment**: Create a `.env` file in `backend/` with your API keys (GROQ_API_KEY, etc.).
@@ -106,6 +106,12 @@ This project would not be possible without the incredible work of the global Bud
 - **Ancient Buddhist Texts**: For the detailed interlinear phrase meanings by **Ānandajoti Bhikkhu**.
 - **Tipitaka.net**: For hosting the traditional **Dhammapada Atthakatha** (Stories and Commentaries).
 - **The Open Source Community**: For the foundational frameworks and libraries that power our platform, including **FastAPI**, **Uvicorn**, and various Python ecosystem tools. A detailed list of all technologies used can be found in our [Technology Stack](docs/tech_stack.md) document.
+
+## Credits, Attribution & Copyright
+
+For the detailed third-party attribution, copyright, licensing, source provenance, font credits, software dependencies, service providers, and image-asset status, see **[CREDITS.md](CREDITS.md)**.
+
+> **Copyright note:** The project currently does not declare a repository-wide open-source licence. Third-party text, translations, commentaries, images, fonts, libraries, and services remain subject to their own copyright and licence terms.
 
 ---
 
