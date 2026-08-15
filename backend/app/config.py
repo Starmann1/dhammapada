@@ -19,6 +19,8 @@ class Settings:
     embedding_provider: str
     embedding_model: str
     embedding_dimensions: int
+    openai_api_key: str | None
+    huggingface_api_key: str | None
     groq_api_key: str | None
     vector_search_index: str
     llm_provider: str
@@ -49,6 +51,8 @@ def get_settings() -> Settings:
         embedding_provider=embedding_provider,
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         embedding_dimensions=int(os.getenv("EMBEDDING_DIMENSIONS", default_dimensions)),
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        huggingface_api_key=os.getenv("HUGGINGFACE_API_KEY"),
         groq_api_key=os.getenv("GROQ_API_KEY"),
         vector_search_index=os.getenv("MONGODB_VECTOR_SEARCH_INDEX", "verse_vector_index"),
         llm_provider=os.getenv("LLM_PROVIDER", "none").lower().strip(),

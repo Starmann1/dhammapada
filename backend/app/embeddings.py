@@ -40,12 +40,17 @@ class EmbeddingProvider:
         provider: str = settings.embedding_provider,
         model: str = settings.embedding_model,
         dimensions: int = settings.embedding_dimensions,
-        api_key: str | None = settings.groq_api_key,
     ) -> None:
         self.provider = provider
         self.model = model
         self.dimensions = dimensions
-        self.api_key = api_key
+
+        if self.provider == "openai":
+            self.api_key = settings.openai_api_key
+        elif self.provider == "huggingface":
+            self.api_key = settings.huggingface_api_key
+        else:
+            self.api_key = None
 
     @property
     def name(self) -> str:
@@ -54,6 +59,8 @@ class EmbeddingProvider:
     def embed(self, text: str) -> list[float]:
         if self.provider == "openai":
             return self._embed_openai(text)
+        if self.provider == "huggingface":
+            return self._embed_huggingface(text)
         return self._embed_local(text)
 
     def _embed_openai(self, text: str) -> list[float]:
@@ -81,7 +88,48 @@ class EmbeddingProvider:
         embedding = data["data"][0]["embedding"]
         return [float(value) for value in embedding]
 
-    def _embed_local(self, text: str) -> list[float]:
+    def _embed_huggingface(self, text: str, *, _max_retries: int = 5) -> list[float]:
+        if not self.api_key:
+            raise RuntimeError("HUGGINGFACE_API_KEY is required when EMBEDDING_PROVIDER=huggingface.")
+
+        payload = {"inputs": text}
+        url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{self.model}"
+
+        for attempt in range(_max_retries):
+            request = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=45) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+
+                # Hugging Face Feature Extraction API typically returns the embedding directly as a list
+                # or a list of lists if input was a list of strings.
+                if isinstance(data, list) and len(data) > 0 and isinstance(data[0], list):
+                    embedding = data[0]
+                elif isinstance(data, list):
+                    embedding = data
+                else:
+                    raise RuntimeError(f"Unexpected response format from Hugging Face: {type(data)}")
+
+                return [float(value) for value in embedding]
+            except urllib.error.HTTPError as error:
+                # 503 means the model is loading
+                if error.code == 503 and attempt < _max_retries - 1:
+                    wait = 20 * (attempt + 1)
+                    print(f"\n  Model loading (503). Waiting {wait}s... (attempt {attempt + 1}/{_max_retries})")
+                    time.sleep(wait)
+                    continue
+                raise
+        raise RuntimeError("Hugging Face embedding request failed after max retries.")
+
+
         vector = [0.0] * self.dimensions
         tokens = self._tokens(text)
         if not tokens:
