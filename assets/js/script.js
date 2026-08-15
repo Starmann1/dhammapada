@@ -34,6 +34,8 @@ function unlockBodyScroll() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const preservesStaticContent = document.body.dataset.page === 'credits';
+
   initDarkMode();
   initScrollFeatures();
   initScrollToTop();
@@ -42,17 +44,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   initGlobalActions();
   setCurrentYear();
   markActiveNav();
-  showLoadingState('Loading the Dhammapada...');
+
+  if (!preservesStaticContent) {
+    showLoadingState('Loading the Dhammapada...');
+  }
 
   await loadData();
 
   if (state.loadError) {
-    renderGlobalError('Unable to load the Dhammapada', state.loadError);
+    if (!preservesStaticContent) {
+      renderGlobalError('Unable to load the Dhammapada', state.loadError);
+    }
     return;
   }
 
   buildIndices();
-  renderCurrentPage();
+  if (!preservesStaticContent) {
+    renderCurrentPage();
+  }
   applyDeferredSearchQuery();
 });
 

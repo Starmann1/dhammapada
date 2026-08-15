@@ -63,7 +63,7 @@ python -m http.server 8000
    ```bash
    cd backend
    python -m venv venv
-   source venv/bin/activate  # or venv\\Scripts\\activate on Windows
+   source venv/bin/activate  # or venv\Scripts\activate on Windows
    pip install -r requirements.txt
    ```
 2. **Configure Environment**: Create a `.env` file in `backend/` with your API keys (GROQ_API_KEY, etc.).
@@ -117,4 +117,5 @@ For the detailed third-party attribution, copyright, licensing, source provenanc
 
 **Status**: Active Development  
 *May all beings find peace through the Dhamma.*
+
 
