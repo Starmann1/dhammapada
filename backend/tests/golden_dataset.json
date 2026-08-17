@@ -1,0 +1,32 @@
+[
+  {
+    "query": "1:1",
+    "expected_ids": ["1-1"],
+    "tier": "Direct"
+  },
+  {
+    "query": "17:233",
+    "expected_ids": ["17-233"],
+    "tier": "Direct"
+  },
+  {
+    "query": "What is the nature of craving?",
+    "expected_ids": ["24-338", "16-216"],
+    "tier": "Semantic"
+  },
+  {
+    "query": "How to deal with anger?",
+    "expected_ids": ["17-233", "17-234"],
+    "tier": "Semantic"
+  },
+  {
+    "query": "Relationship between craving, suffering, and rebirth",
+    "expected_ids": ["14-191", "24-338", "26-416"],
+    "tier": "Complex"
+  },
+  {
+    "query": "The characteristics of a truly enlightened person",
+    "expected_ids": ["26-416", "7-96"],
+    "tier": "Complex"
+  }
+]
