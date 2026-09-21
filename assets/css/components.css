@@ -492,32 +492,61 @@
 /* --- Footer --- */
 .footer {
   border-top: 1px solid var(--border);
-  padding: var(--space-16) 0 var(--space-10);
+  padding: var(--space-16) 0 var(--space-12);
   margin-top: var(--space-24);
   color: var(--fg-subtle);
   font-size: var(--font-size-sm);
   text-align: center;
 }
 
+.footer .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.footer p {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+
+.footer .text-serif:first-child,
 .footer-brand {
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: 1.45rem;
+  font-weight: 500;
   color: var(--fg);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1) !important;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.footer p:nth-of-type(2) {
+  color: var(--fg-muted);
+  font-size: 0.925rem;
+  margin-bottom: var(--space-5) !important;
+  text-align: center;
 }
 
 .footer-links {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-4) var(--space-8);
-  margin: var(--space-6) 0;
+  align-items: center;
+  gap: var(--space-3) var(--space-8);
+  margin: var(--space-5) auto var(--space-2);
+  width: 100%;
 }
 
 .footer-links a {
   color: var(--fg-muted);
   text-decoration: none;
   font-size: 0.875rem;
+  font-family: var(--font-sans);
   transition: color var(--transition-fast);
 }
 
@@ -526,12 +555,16 @@
 }
 
 .footer-ethos {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 1.1rem;
-  color: var(--accent);
-  margin-top: var(--space-6);
-  opacity: 0.85;
+  font-family: var(--font-serif) !important;
+  font-style: italic !important;
+  font-size: 1.15rem !important;
+  color: var(--accent) !important;
+  margin-top: var(--space-6) !important;
+  margin-bottom: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  opacity: 0.9;
+  text-align: center !important;
 }
 
 @media (max-width: 768px) {
@@ -539,6 +572,7 @@
     display: none;
   }
 }
+
 
 /* --- Focus Mode --- */
 body.focus-active .navbar,

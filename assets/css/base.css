@@ -60,6 +60,14 @@ p {
   margin-bottom: var(--space-4);
   max-width: var(--measure);
 }
+.text-center,
+.text-center p,
+p.text-center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 
 /* Links & States */
 a {
