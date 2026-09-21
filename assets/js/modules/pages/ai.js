@@ -154,19 +154,18 @@ export function render() {
         ${renderMessageList()}
       </section>
 
-      <!-- Input Bar -->
-      <div class="ai-input-bar surface" style="border-radius: var(--radius-md); border: 1px solid var(--border-strong); box-shadow: var(--shadow); margin-top: auto;">
-        <form id="aiChatForm" style="display: flex; gap: var(--space-2); align-items: flex-end;">
-          <textarea id="aiInput" class="ai-input" placeholder="Ask about a teaching, theme, or verse (e.g. 1:1, wisdom, grief)..." rows="1" maxlength="1000" required style="border: none; background: transparent; padding: var(--space-2); color: var(--fg); font-family: inherit; font-size: var(--font-size-base); resize: none; min-height: 2.5rem; max-height: 8rem; outline: none;"></textarea>
+      <!-- Input Area -->
+      <div class="ai-input-wrapper">
+        <form id="aiChatForm" class="ai-chat-form">
+          <textarea id="aiInput" class="ai-textarea" placeholder="Ask about a teaching, theme, or verse (e.g. 1:1, wisdom, grief)..." rows="1" maxlength="1000" required></textarea>
           
-          <button type="submit" class="btn-icon text-accent" id="aiSubmitBtn" title="Send (Enter)" aria-label="Send query" style="margin-bottom: 2px;">
-            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          <button type="submit" class="ai-submit-btn" id="aiSubmitBtn" title="Send (Enter)" aria-label="Send query">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
           </button>
         </form>
-      </div>
-
-      <div class="ai-disclaimer" style="margin-top: var(--space-3);">
-        Grounded in Dhammapada citations. Not a substitute for a living teacher.
+        <div class="ai-disclaimer">
+          Grounded in Dhammapada citations. Not a substitute for a living teacher.
+        </div>
       </div>
     </div>
   `;
