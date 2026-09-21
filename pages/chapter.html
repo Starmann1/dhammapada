@@ -1,85 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Read a chapter of The Dhammapada with summaries, verse jump links, and study navigation.">
-    <meta name="keywords" content="Dhammapada chapter, Buddhist scripture, Pali, Buddha teachings">
-    <meta name="theme-color" content="#d4a02e">
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="The Dhammapada Chapter">
-    <meta property="og:description" content="Read a chapter of The Dhammapada with summaries, verse jump links, and study navigation.">
-    <meta property="og:image" content="../assets/images/buddha.jpg">
-    <meta property="og:url" content="">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Dhammapada Chapter">
-    <meta name="twitter:description" content="Read a chapter of The Dhammapada with summaries, verse jump links, and study navigation.">
-    <meta name="twitter:image" content="../assets/images/buddha.jpg">
-    <title>Chapter | The Dhammapada</title>
-    <link rel="canonical" id="canonicalLink" href="">
-    <link rel="stylesheet" href="../assets/css/styles.css">
-    <script type="application/ld+json" id="structuredData"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Study and read The Dhammapada">
+<meta name="theme-color" content="#0B0A09">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chapter — The Dhammapada">
+<meta property="og:description" content="Study and read The Dhammapada">
+<meta property="og:image" content="../assets/images/dharmachakra.png">
+<title>Chapter — The Dhammapada</title>
+<link rel="canonical" id="canonicalLink" href="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<script type="application/ld+json" id="structuredData"></script>
 </head>
-
-<body data-page="chapter" class="dark-mode">
-    <nav class="navbar">
-        <div class="container navbar-container">
-            <a href="../index.html" class="navbar-logo">
-                <img src="../assets/images/dharmachakra.png" alt="Dharmachakra" width="28" height="28">
-                The Dhammapada
-            </a>
-            <div class="navbar-links">
-                <a href="../index.html" class="nav-link" data-nav="home">Home</a>
-                <a href="quotes.html" class="nav-link" data-nav="quotes">Quotes</a>
-                <a href="faq.html" class="nav-link" data-nav="faq">FAQ</a>
-                <a href="#" class="nav-link" data-nav="chat" id="dhammaAiNavBtn">Dhamma AI</a>
-                <a href="about.html" class="nav-link" data-nav="about">About</a>
-            </div>
-            <div class="navbar-actions">
-                <button class="btn-icon" id="searchButton" title="Search (Ctrl+K)" type="button">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-                <button class="btn-icon" id="darkModeToggle" title="Toggle Dark Mode" type="button">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <main id="pageContent"></main>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-links">
-                <a href="about.html">About</a>
-                <a href="faq.html">FAQ</a>
-                <a href="quotes.html">Quotes</a>
-                <a href="credits.html">Credits &amp; Attribution</a>
-            </div>
-            <p>&copy; <span class="current-year">2026</span> The Dhammapada. May all beings be happy and peaceful.</p>
-        </div>
-    </footer>
-
-    <div class="search-modal" id="searchModal">
-        <div class="search-modal-content">
-            <div class="search-input-wrapper">
-                <input type="text" class="search-input" id="searchInput"
-                    placeholder="Search by keyword or verse reference... (Ctrl+K)" autocomplete="off">
-            </div>
-            <div class="search-results" id="searchResults">
-                <div class="search-no-results">Search by keyword or by verse reference like 1:5 or 183.</div>
-            </div>
-        </div>
+<body data-page="chapter">
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container navbar-inner">
+    <a href="../index.html" class="navbar-brand">
+      <img src="../assets/images/dharmachakra.png" alt="" width="24" height="24" aria-hidden="true">
+      The Dhammapada
+    </a>
+    <ul class="navbar-nav" role="menubar">
+      <li><a href="../index.html" class="nav-link" data-nav="home" role="menuitem">Read</a></li>
+      <li><a href="chapters.html" class="nav-link" data-nav="chapters" role="menuitem">Chapters</a></li>
+      <li><a href="quotes.html" class="nav-link" data-nav="quotes" role="menuitem">Quotes</a></li>
+      <li><a href="dhamma-ai.html" class="nav-link" data-nav="ai" role="menuitem">Study</a></li>
+      <li><a href="about.html" class="nav-link" data-nav="about" role="menuitem">About</a></li>
+    </ul>
+    <div class="navbar-actions">
+      <button class="btn-icon" id="searchButton" title="Search (Ctrl+K)" type="button" aria-label="Search">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </button>
+      <a href="saved.html" class="btn-icon" title="Saved verses" aria-label="Saved verses">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+      </a>
+      <button class="btn-icon" id="themeToggle" title="Toggle theme" type="button" aria-label="Toggle light/dark theme">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      </button>
     </div>
+  </div>
+</nav>
 
-    <script src="../assets/js/script.js"></script>
+<main id="pageContent"></main>
+<noscript><div class="container" style="padding: 2rem 0;">JavaScript is required to load the interactive reading experience.</div></noscript>
+
+<footer class="footer">
+  <div class="container">
+    <p class="text-serif" style="margin-bottom: var(--space-2);">The Dhammapada</p>
+    <p style="margin-bottom: var(--space-4);">Read, study, and revisit the Buddha's teachings.</p>
+    <div class="footer-links">
+      <a href="faq.html">FAQ</a>
+      <a href="about.html">About</a>
+      <a href="dhamma-ai.html">Dhamma AI</a>
+      <a href="saved.html">Saved</a>
+      <a href="credits.html">Credits</a>
+    </div>
+    <p class="footer-ethos">May all beings be happy and peaceful.</p>
+  </div>
+</footer>
+
+<nav class="bottom-nav" aria-label="Mobile navigation">
+  <a href="../index.html" class="bottom-nav-item" data-nav="home">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+    <span>Read</span>
+  </a>
+  <a href="chapters.html" class="bottom-nav-item" data-nav="chapters">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+    <span>Chapters</span>
+  </a>
+  <a href="dhamma-ai.html" class="bottom-nav-item" data-nav="ai">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+    <span>Study</span>
+  </a>
+  <a href="saved.html" class="bottom-nav-item" data-nav="saved">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+    <span>Saved</span>
+  </a>
+</nav>
+
+<div class="command-palette-overlay" id="searchModal" role="dialog" aria-modal="true" aria-label="Search">
+  <div class="command-palette">
+    <div class="command-palette-input-wrap">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" class="command-palette-input" id="searchInput" placeholder="Search verses, chapters, themes..." autocomplete="off">
+      <span class="command-palette-shortcut">ESC</span>
+    </div>
+    <div class="command-palette-results" id="searchResults">
+      <div class="command-palette-empty">Search by keyword, theme, or verse reference like 1:5 or 183</div>
+    </div>
+  </div>
+</div>
+
+<button class="btn-icon focus-exit-btn" id="focusExitBtn" title="Exit focus mode (Esc)" aria-label="Exit focus mode">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="../assets/js/app.js"></script>
 </body>
-
 </html>

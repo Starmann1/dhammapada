@@ -22,3 +22,5 @@ Thumbs.db
 backup/
 data/tipitaka-cache/
 FOLDER_STRUCTURE.md
+.claude/
+

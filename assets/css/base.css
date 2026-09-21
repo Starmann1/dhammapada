@@ -1,0 +1,107 @@
+/* === BASE === */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* Modern CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
+html, body {
+  height: 100%;
+}
+body {
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--fg);
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+input, button, textarea, select {
+  font: inherit;
+}
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+#root, #__next {
+  isolation: isolate;
+}
+
+/* Typography Foundation */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+  color: var(--fg);
+}
+h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: 500;
+}
+h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: 500;
+}
+h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+}
+p {
+  margin-bottom: var(--space-4);
+  max-width: var(--measure);
+}
+
+/* Links & States */
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+a:hover {
+  color: var(--accent-hover);
+}
+::selection {
+  background-color: var(--accent-subtle);
+  color: var(--accent);
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* Utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+

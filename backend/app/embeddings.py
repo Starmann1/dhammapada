@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import re
+import time
 import unicodedata
 import urllib.request
 from typing import Any
@@ -129,7 +130,7 @@ class EmbeddingProvider:
                 raise
         raise RuntimeError("Hugging Face embedding request failed after max retries.")
 
-
+    def _embed_local(self, text: str) -> list[float]:
         vector = [0.0] * self.dimensions
         tokens = self._tokens(text)
         if not tokens:
