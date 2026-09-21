@@ -332,17 +332,48 @@ async function fetchAnswer(question) {
 
 /** Grounded local search and answer composition from local corpus */
 function localScripturalAnswer(question) {
-  const qLower = question.toLowerCase();
+  const trimmed = question.trim();
+
+  // Check conversational pleasantries
+  const gratitudeRegex = /^(thanks?(\s+(bro|man|dude|friend|mate|you|u|a\s+lot|so\s+much|very\s+much))?|thank\s+you(\s+(so\s+much|very\s+much|bro|man|friend))?|thx|ty|much\s+appreciated|appreciate\s+it|many\s+thanks)[!.,\s]*$/i;
+  if (gratitudeRegex.test(trimmed)) {
+    return {
+      answer: "You are most welcome. In the teachings of the Buddha, gratitude (*kataññutā*) is regarded as a rare and noble virtue that brings joy, humility, and peace to the heart. May your reflections bring you clarity and gentle strength on your path. Sādhu, sādhu, sādhu.\n\nWhenever you wish to revisit or contemplate another verse, I am here to study with you.",
+      citations: []
+    };
+  }
+
+  const greetingRegex = /^(hi|hello|hey|greetings|namaste|good\s+(morning|afternoon|evening|day))(\s+(there|bro|friend|man|mate))?[!.,\s]*$/i;
+  if (greetingRegex.test(trimmed)) {
+    return {
+      answer: "Namaste and welcome. I am your Dhamma AI study assistant, grounded in the canonical verses, commentaries, and background stories of the Dhammapada.\n\nWhat aspect of life, the mind, or the Buddha's teachings would you like to reflect on today?",
+      citations: []
+    };
+  }
+
+  const farewellRegex = /^(bye|goodbye|see\s+ya|see\s+you|take\s+care|farewell|sadhu(\s+sadhu\s+sadhu)?|peace)[!.,\s]*$/i;
+  if (farewellRegex.test(trimmed)) {
+    return {
+      answer: "May you be well, peaceful, and free from suffering. May mindfulness guard your thoughts, speech, and actions wherever you go. Sādhu, sādhu, sādhu.",
+      citations: []
+    };
+  }
+
+  // Strip pleasantry prefix if followed by a real question (e.g. "thanks bro, what is verse 1?")
+  const prefixRegex = /^(thanks?((\s+(bro|man|dude|friend|mate|you|u))?|((\s+(so\s+much|a\s+lot))?))|thank\s+you(\s+(so\s+much|very\s+much|bro|man|friend))?|hi|hello|hey|namaste)[!.,\s]+/i;
+  const effectiveQuery = trimmed.replace(prefixRegex, '').trim() || trimmed;
+  const qLower = effectiveQuery.toLowerCase();
   const allChapters = getAllChapters();
   const scored = [];
 
   // Match direct verse references (e.g. 1:1, 183)
-  const isReference = /^(\d+)[:.-](\d+)$/.exec(question.trim());
-  const isExactNum = /^\d+$/.exec(question.trim());
+  const isReference = /^(\d+)[:.-](\d+)$/.exec(effectiveQuery);
+  const isExactNum = /^\d+$/.exec(effectiveQuery);
 
   let refCh = isReference ? Number(isReference[1]) : null;
   let refV = isReference ? Number(isReference[2]) : null;
   let exactNum = isExactNum ? Number(isExactNum[0]) : null;
+
 
   for (const ch of allChapters) {
     for (const v of ch.verses || []) {

@@ -68,6 +68,32 @@ QUERY_EXPANSIONS = {
     "first": "1:1 mano pubbangama mind forerunner states",
 }
 
+CONVERSATIONAL_GRATITUDE = re.compile(
+    r"^(thanks?(\s+(bro|man|dude|friend|mate|you|u|a\s+lot|so\s+much|very\s+much))?|"
+    r"thank\s+you(\s+(so\s+much|very\s+much|bro|man|friend))?|"
+    r"thx|ty|much\s+appreciated|appreciate\s+it|many\s+thanks)[!.,\s]*$",
+    re.IGNORECASE,
+)
+
+CONVERSATIONAL_GREETING = re.compile(
+    r"^(hi|hello|hey|greetings|namaste|good\s+(morning|afternoon|evening|day))"
+    r"(\s+(there|bro|friend|man|mate))?[!.,\s]*$",
+    re.IGNORECASE,
+)
+
+CONVERSATIONAL_FAREWELL = re.compile(
+    r"^(bye|goodbye|see\s+ya|see\s+you|take\s+care|farewell|sadhu(\s+sadhu\s+sadhu)?|peace)[!.,\s]*$",
+    re.IGNORECASE,
+)
+
+PLEASANTRY_PREFIX = re.compile(
+    r"^(thanks?((\s+(bro|man|dude|friend|mate|you|u))?|((\s+(so\s+much|a\s+lot))?))|"
+    r"thank\s+you(\s+(so\s+much|very\s+much|bro|man|friend))?|"
+    r"hi|hello|hey|namaste)[!.,\s]+",
+    re.IGNORECASE,
+)
+
+
 
 @dataclass(frozen=True)
 class RetrievalResult:
@@ -194,7 +220,51 @@ class StructuredHybridRag:
         return results[:limit]
 
     def answer(self, question: str, limit: int = 5) -> dict[str, Any]:
-        results = self.search(question, limit=limit)
+        cleaned_question = question.strip()
+
+        # Conversational gratitude handling
+        if CONVERSATIONAL_GRATITUDE.match(cleaned_question):
+            return {
+                "question": question,
+                "answer": (
+                    "You are most welcome. In the teachings of the Buddha, gratitude (*kataññutā*) is regarded as a "
+                    "rare and noble virtue that brings joy, humility, and peace to the heart. May your reflections "
+                    "bring you clarity and gentle strength on your path. Sādhu, sādhu, sādhu.\n\n"
+                    "Whenever you wish to revisit or contemplate another verse, I am here to study with you."
+                ),
+                "citations": [],
+                "retrieval_strategy": "conversational:gratitude",
+            }
+
+        # Conversational greeting handling
+        if CONVERSATIONAL_GREETING.match(cleaned_question):
+            return {
+                "question": question,
+                "answer": (
+                    "Namaste and welcome. I am your Dhamma AI study assistant, grounded in the canonical verses, "
+                    "commentaries, and background stories of the Dhammapada.\n\n"
+                    "What aspect of life, the mind, or the Buddha's teachings would you like to reflect on today?"
+                ),
+                "citations": [],
+                "retrieval_strategy": "conversational:greeting",
+            }
+
+        # Conversational farewell handling
+        if CONVERSATIONAL_FAREWELL.match(cleaned_question):
+            return {
+                "question": question,
+                "answer": (
+                    "May you be well, peaceful, and free from suffering. May mindfulness guard your thoughts, speech, "
+                    "and actions wherever you go. Sādhu, sādhu, sādhu."
+                ),
+                "citations": [],
+                "retrieval_strategy": "conversational:farewell",
+            }
+
+        # Strip pleasantry prefix if followed by an actual question
+        search_query = PLEASANTRY_PREFIX.sub("", cleaned_question).strip() or cleaned_question
+
+        results = self.search(search_query, limit=limit)
         if not results:
             return {
                 "question": question,
@@ -205,6 +275,7 @@ class StructuredHybridRag:
                 "citations": [],
                 "retrieval_strategy": self.retrieval_strategy,
             }
+
 
         selected = results[: min(3, len(results))]
         citations = [self._citation(result) for result in results]
