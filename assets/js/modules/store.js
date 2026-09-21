@@ -74,6 +74,7 @@ function buildIndices() {
   state.chapterById.clear();
   state.verseById.clear();
   state.themeById.clear();
+  allVersesCache = null;
 
   state.data.chapters.forEach(ch => {
     state.chapterById.set(ch.id, ch);
@@ -91,6 +92,20 @@ export function getVerse(id) { return state.verseById.get(String(id)); }
 export function getTheme(id) { return state.themeById.get(String(id)); }
 export function getAllChapters() { return state.data?.chapters || []; }
 export function getAllThemes() { return state.data?.theme_definitions || []; }
+
+let allVersesCache = null;
+export function getAllVerses() {
+  if (allVersesCache && allVersesCache.length > 0) return allVersesCache;
+  if (!state.data?.chapters) return [];
+  allVersesCache = [];
+  state.data.chapters.forEach(ch => {
+    if (Array.isArray(ch.verses)) {
+      allVersesCache.push(...ch.verses);
+    }
+  });
+  return allVersesCache;
+}
+
 export function getQuotes() { return state.data?.quotes || []; }
 export function getFaqs() { return state.data?.faqs || []; }
 export function getAbout() { return state.data?.about || null; }
@@ -101,13 +116,52 @@ export function isLoading() { return state.loading; }
 export function getError() { return state.error; }
 
 // === Verse of the Day ===
-export function getVerseOfTheDay() {
+/**
+ * Returns a unique, inspiring verse for each calendar day of the year.
+ * Rotates deterministically across all 423 verses of the Dhammapada using
+ * a coprime step generator (step=137, gcd(137, 423)=1) to guarantee:
+ *  1. Every single day of the year (365/366 days) displays a distinct verse.
+ *  2. Consecutive days gracefully cycle across different chapters and themes.
+ *  3. Year offset ensures year-over-year variety.
+ * 
+ * @param {Date|string|number} [targetDate=new Date()]
+ * @returns {object|null}
+ */
+export function getVerseOfTheDay(targetDate = new Date()) {
+  const now = targetDate instanceof Date ? targetDate : new Date(targetDate || Date.now());
+  const allVerses = getAllVerses();
+
+  // Exact midnight-to-midnight local day of year (1-indexed: 1..366)
+  const year = now.getFullYear();
+  const startOfYear = new Date(year, 0, 1);
+  const currentDay = new Date(year, now.getMonth(), now.getDate());
+  const dayOfYear = Math.round((currentDay - startOfYear) / 86400000) + 1;
+
+  if (allVerses.length > 0) {
+    const total = allVerses.length;
+    const yearOffset = (year * 37) % total;
+    const verseIndex = (yearOffset + (dayOfYear - 1) * 137) % total;
+    return allVerses[verseIndex] || allVerses[0];
+  }
+
+  // Fallback to verse_of_the_day_seed array if chapters not fully flattened yet
   const seeds = state.data?.verse_of_the_day_seed || [];
-  if (!seeds.length) return null;
-  const now = new Date();
-  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-  const id = seeds[dayOfYear % seeds.length];
-  return state.verseById.get(id) || null;
+  if (seeds.length > 0) {
+    const id = seeds[(dayOfYear - 1) % seeds.length];
+    return state.verseById.get(id) || null;
+  }
+
+  return null;
+}
+
+/**
+ * Returns formatted date string for Verse of the Day header (e.g. "SEP 21")
+ * @param {Date|string|number} [targetDate=new Date()]
+ * @returns {string}
+ */
+export function getVerseOfTheDayDateString(targetDate = new Date()) {
+  const now = targetDate instanceof Date ? targetDate : new Date(targetDate || Date.now());
+  return now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
 }
 
 // === Theme Persistence ===

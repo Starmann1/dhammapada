@@ -362,7 +362,13 @@ function createWordMeaningLookup(verseNumber) {
 }
 
 function getVerseOfTheDaySeedNumbers() {
-  return [1, 2, 5, 21, 25, 35, 50, 103, 129, 160, 183, 204, 223, 277, 278, 279, 354, 393, 423];
+  const seeds = [];
+  const total = 423;
+  for (let day = 1; day <= 366; day++) {
+    const verseNum = (((day - 1) * 137) % total) + 1;
+    seeds.push(verseNum);
+  }
+  return seeds;
 }
 
 function buildQuotes(verseMap) {

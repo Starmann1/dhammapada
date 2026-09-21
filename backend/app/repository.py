@@ -135,12 +135,15 @@ class JsonRepository(BaseRepository):
 
     def get_verse_of_the_day(self, today: date | None = None) -> dict[str, Any]:
         today = today or date.today()
+        year = today.year
         day_of_year = today.timetuple().tm_yday
-        seed = self.data["verse_of_the_day_seed"]
-        verse_id = seed[(day_of_year - 1) % len(seed)]
+        total = len(self.verses) if self.verses else 423
+        year_offset = (year * 37) % total
+        verse_index = (year_offset + (day_of_year - 1) * 137) % total
+        verse = self.verses[verse_index] if self.verses else self.verse_by_id.get("1-1", {})
         return {
             "date": today.isoformat(),
-            "verse": self.verse_by_id[verse_id],
+            "verse": verse,
         }
 
     def _lookup_direct_verse(self, query: str) -> dict[str, Any] | None:
@@ -440,11 +443,16 @@ class MongoRepository(JsonRepository):
 
     def get_verse_of_the_day(self, today: date | None = None) -> dict[str, Any]:
         today = today or date.today()
-        seed = self._get_content_doc("verse_of_the_day_seed")
-        if not seed:
-            return super().get_verse_of_the_day(today)
-        verse_id = seed[(today.timetuple().tm_yday - 1) % len(seed)]
-        verse = self.database.verses.find_one({"id": verse_id}, {"_id": 0}) or self.verse_by_id[verse_id]
+        year = today.year
+        day_of_year = today.timetuple().tm_yday
+        total = len(self.verses) if self.verses else 423
+        year_offset = (year * 37) % total
+        verse_index = (year_offset + (day_of_year - 1) * 137) % total
+        target_verse = self.verses[verse_index] if self.verses else None
+        if target_verse:
+            verse = self.database.verses.find_one({"id": target_verse["id"]}, {"_id": 0}) or target_verse
+        else:
+            verse = super().get_verse_of_the_day(today)["verse"]
         return {"date": today.isoformat(), "verse": verse}
 
     def _get_content_doc(self, key: str) -> Any:

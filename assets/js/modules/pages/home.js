@@ -1,4 +1,4 @@
-import { getFeaturedVerseIds, getVerse, getVerseOfTheDay, getAllChapters } from '../store.js';
+import { getFeaturedVerseIds, getVerse, getVerseOfTheDay, getVerseOfTheDayDateString, getAllChapters, on } from '../store.js';
 import { paths } from '../router.js';
 import { stripTags, updatePageMeta } from '../render.js';
 
@@ -10,6 +10,7 @@ export function render() {
     updatePageMeta({ title: 'The Dhammapada — A Study Companion' });
     
     const votd = getVerseOfTheDay();
+    const dateStr = getVerseOfTheDayDateString();
     const allChapters = getAllChapters();
     // Show first 8 chapters in preview collection list
     const previewChapters = allChapters.slice(0, 8);
@@ -30,15 +31,16 @@ export function render() {
         </div>
         
         <div class="container reading-column">
-            <section class="votd-section" aria-label="Verse of the Day">
-                <div class="eyebrow votd-label">VERSE OF THE DAY</div>
+            <section class="votd-section" aria-label="Verse of the Day" id="votdSection">
+                <div class="eyebrow votd-label">VERSE OF THE DAY &middot; ${dateStr}</div>
                 <h2 class="votd-title">A teaching for today</h2>
-                <div class="votd-content">
-                    <p class="votd-quote">${votd ? stripTags(votd.translation) : 'Not by matted hair or family, or birth is one a brahmin. Those who are truthful and principled: they are pure, they are brahmins.'}</p>
-                    <div class="votd-meta">${votd ? `Dhammapada ${votd.verse_number}` : 'Dhammapada 393'}</div>
-                    <a href="${votd ? paths.verse(votd.id) : paths.verse('26-393')}" class="btn-pill-outline" data-link>
-                        Open verse ${votd ? votd.verse_number : 393} <span class="arrow">&rarr;</span>
-                    </a>
+                <div class="votd-content" id="votdContent">
+                    <p class="votd-quote">${votd ? stripTags(votd.translation) : 'Loading today\'s teaching...'}</p>
+                    <div class="votd-meta">${votd ? `Dhammapada ${votd.verse_number}` : ''}</div>
+                    ${votd ? `
+                    <a href="${paths.verse(votd.id)}" class="btn-pill-outline" data-link>
+                        Open verse ${votd.verse_number} <span class="arrow">&rarr;</span>
+                    </a>` : ''}
                 </div>
             </section>
         </div>
@@ -85,3 +87,69 @@ export function render() {
         </div>
     `;
 }
+
+let midnightTimer = null;
+
+function updateVotdCard() {
+    const votdSection = document.getElementById('votdSection');
+    if (!votdSection) return;
+    const votd = getVerseOfTheDay();
+    if (!votd) return;
+
+    const label = votdSection.querySelector('.votd-label');
+    if (label) {
+        label.textContent = `VERSE OF THE DAY · ${getVerseOfTheDayDateString()}`;
+    }
+    const quote = votdSection.querySelector('.votd-quote');
+    if (quote) {
+        quote.textContent = stripTags(votd.translation);
+    }
+    const meta = votdSection.querySelector('.votd-meta');
+    if (meta) {
+        meta.textContent = `Dhammapada ${votd.verse_number}`;
+    }
+    let link = votdSection.querySelector('a.btn-pill-outline');
+    if (link) {
+        link.href = paths.verse(votd.id);
+        link.innerHTML = `Open verse ${votd.verse_number} <span class="arrow">&rarr;</span>`;
+    } else {
+        const content = votdSection.querySelector('.votd-content');
+        if (content) {
+            const newLink = document.createElement('a');
+            newLink.className = 'btn-pill-outline';
+            newLink.setAttribute('data-link', '');
+            newLink.href = paths.verse(votd.id);
+            newLink.innerHTML = `Open verse ${votd.verse_number} <span class="arrow">&rarr;</span>`;
+            content.appendChild(newLink);
+        }
+    }
+}
+
+/**
+ * Post-render lifecycle: schedules automatic midnight refresh and data-hydration update.
+ */
+export function afterRender() {
+    if (midnightTimer) {
+        clearTimeout(midnightTimer);
+        midnightTimer = null;
+    }
+
+    // Auto-update at midnight local time so the verse automatically advances if tab is left open
+    function scheduleMidnightUpdate() {
+        const now = new Date();
+        const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 2);
+        const msUntilMidnight = Math.max(1000, nextMidnight.getTime() - now.getTime());
+
+        midnightTimer = setTimeout(() => {
+            updateVotdCard();
+            scheduleMidnightUpdate();
+        }, msUntilMidnight);
+    }
+    scheduleMidnightUpdate();
+
+    // Re-check and update once data is loaded (if initial render happened before store was ready)
+    on('dataLoaded', () => {
+        updateVotdCard();
+    });
+}
+
